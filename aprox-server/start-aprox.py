@@ -33,6 +33,8 @@ def runIn(cmd, workdir, fail_message='Error running command', fail=True):
 
 def move_and_link(src, target, replaceIfExists=False):
   print "Source: %s\nTarget: %s" % (src, target)
+  print "Existing target listing:\n"
+  run("tree -a %s" % target)
   
   srcParent = os.path.dirname(src)
   if not os.path.isdir(srcParent):
