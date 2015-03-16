@@ -28,6 +28,12 @@
     <aproxVersion>0.19.1</aproxVersion>
   </properties>
   
+  <scm>
+    <connection>scm:git:https://github.com/jdcasey/aprox-docker.git</connection>
+    <developerConnection>scm:git:git@github.com:jdcasey/aprox-docker.git</developerConnection>
+    <url>https://github.com/jdcasey/aprox-docker</url>
+  </scm>
+  
   <build>
     <resources>
       <resource>
