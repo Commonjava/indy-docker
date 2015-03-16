@@ -19,7 +19,7 @@
   
   <groupId>org.commonjava.aprox.docker</groupId>
   <artifactId>aprox-docker-utils</artifactId>
-  <version>0.19.1.1-SNAPSHOT</version>
+  <version>0.19.1-1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>AProx :: Docker Utilities</name>
