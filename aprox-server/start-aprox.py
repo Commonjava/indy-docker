@@ -32,18 +32,22 @@ def runIn(cmd, workdir, fail_message='Error running command', fail=True):
 
 
 def move_and_link(src, target, replaceIfExists=False):
+  print "Source: %s\nTarget: %s" % (src, target)
+  
   srcParent = os.path.dirname(src)
   if not os.path.isdir(srcParent):
+    print "mkdir -p %s" % srcParent
     os.makedirs(srcParent)
   
   if not os.path.isdir(target):
+    print "mkdir -p %s" % target
     os.makedirs(target)
   
-  print "Source: %s\nTarget: %s" % (src, target)
   if os.path.isdir(src):
     for f in os.listdir(src):
       targetFile = os.path.join(target, f)
       srcFile = os.path.join(src, f)
+      print "%s => %s" % (srcFile, targetFile)
       if os.path.exists(targetFile):
         if not replaceIfExists:
           print "Target dir exists: %s. NOT replacing." % targetFile
@@ -52,17 +56,23 @@ def move_and_link(src, target, replaceIfExists=False):
           print "Target dir exists: %s. Replacing." % targetFile
         
         if os.path.isdir(targetFile):
+          print "rm -r %s" % targetFile
           shutil.rmtree(targetFile)
         else:
+          print "rm %s" % targetFile
           os.remove(targetFile)
-        
+      
       if os.path.isdir(srcFile):
+        print "cp -r %s %s" % (srcFile, targetFile)
         shutil.copytree(srcFile, targetFile)
       else:
+        print "cp %s %s" % (srcFile, targetFile)
         shutil.copy(srcFile, targetFile)
     
+    print "rm -r %s" % src
     shutil.rmtree(src)
   
+  print "ln -s %s %s" % (target, src)
   os.symlink(target, src)
 
 
