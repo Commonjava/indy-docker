@@ -94,7 +94,6 @@ APROX_DEVMODE_ENVAR = 'APROX_DEV'
 
 
 # Defaults
-DEF_APROX_VERSION='@aproxVersion@'
 DEF_APROX_FLAVOR='savant'
 
 DEF_APROX_BINARY_URL_FORMAT = 'http://repo.maven.apache.org/maven2/org/commonjava/aprox/launch/aprox-launcher-{flavor}/{version}/aprox-launcher-{flavor}-{version}-launcher.tar.gz'
@@ -122,7 +121,7 @@ LOGS = '/var/log/aprox'
 devmode = os.environ.get(APROX_DEVMODE_ENVAR)
 
 # aprox release to use
-version=os.environ.get(APROX_VERSION_ENVAR) or DEF_APROX_VERSION
+version=os.environ.get(APROX_VERSION_ENVAR)
 
 # currently one of: rest-min, easyprox, savant
 flavor=os.environ.get(APROX_FLAVOR_ENVAR) or DEF_APROX_FLAVOR
