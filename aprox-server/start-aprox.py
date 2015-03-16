@@ -34,10 +34,10 @@ def runIn(cmd, workdir, fail_message='Error running command', fail=True):
 def move_and_link(src, target, replaceIfExists=False):
   srcParent = os.path.dirname(src)
   if not os.path.isdir(srcParent):
-    os.mkdir(srcParent)
+    os.makedirs(srcParent)
   
   if not os.path.isdir(target):
-    os.mkdir(target)
+    os.makedirs(target)
   
   print "Source: %s\nTarget: %s" % (src, target)
   if os.path.isdir(src):
@@ -84,7 +84,7 @@ APROX_DEVMODE_ENVAR = 'APROX_DEV'
 
 
 # Defaults
-DEF_APROX_VERSION='0.18.4'
+DEF_APROX_VERSION='@aproxVersion@'
 DEF_APROX_FLAVOR='savant'
 
 DEF_APROX_BINARY_URL_FORMAT = 'http://repo.maven.apache.org/maven2/org/commonjava/aprox/launch/aprox-launcher-{flavor}/{version}/aprox-launcher-{flavor}-{version}-launcher.tar.gz'
@@ -138,7 +138,7 @@ if not os.path.isdir('/root/.ssh') and os.path.isdir(SSH_CONFIG_VOL):
 if os.path.isdir(APROX_DIR) is False:
   parentDir = os.path.dirname(APROX_DIR)
   if os.path.isdir(parentDir) is False:
-    os.mkdir(parentDir)
+    os.makedirs(parentDir)
   
   if devmode is not None:
     unpacked=False
