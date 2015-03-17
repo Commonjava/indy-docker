@@ -184,7 +184,7 @@ if os.path.isdir(APROX_DIR) is False:
   if aproxEtcUrl is not None:
     print "Cloning: %s" % aproxEtcUrl
     shutil.rmtree(APROX_ETC)
-    run("git clone %s %s" % (aproxEtcUrl, APROX_ETC), "Failed to checkout aprox/etc from: %s" % aproxEtcUrl)
+    run("git clone --verbose --progress %s %s 2>&1" % (aproxEtcUrl, APROX_ETC), "Failed to checkout aprox/etc from: %s" % aproxEtcUrl)
   
   move_and_link(APROX_ETC, ETC_APROX, replaceIfExists=True)
   move_and_link(APROX_STORAGE, VAR_STORAGE)
