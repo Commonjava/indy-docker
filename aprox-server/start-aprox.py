@@ -68,7 +68,7 @@ def move_and_link(src, target, replaceIfExists=False):
       
       if os.path.isdir(srcFile):
         print "cp -r %s %s" % (srcFile, targetFile)
-        os.path.makedirs(targetFile)
+        os.makedirs(targetFile)
         shutil.copytree(srcFile, targetFile)
       else:
         print "cp %s %s" % (srcFile, targetFile)
