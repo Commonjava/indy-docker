@@ -34,16 +34,18 @@ def runIn(cmd, workdir, fail_message='Error running command', fail=True):
 def move_and_link(src, target, replaceIfExists=False):
   srcParent = os.path.dirname(src)
   if not os.path.isdir(srcParent):
+    print "mkdir -p %s" % srcParent
     os.makedirs(srcParent)
   
   if not os.path.isdir(target):
+    print "mkdir -p %s" % target
     os.makedirs(target)
   
-  print "Source: %s\nTarget: %s" % (src, target)
   if os.path.isdir(src):
     for f in os.listdir(src):
       targetFile = os.path.join(target, f)
       srcFile = os.path.join(src, f)
+      print "%s => %s" % (srcFile, targetFile)
       if os.path.exists(targetFile):
         if not replaceIfExists:
           print "Target dir exists: %s. NOT replacing." % targetFile
@@ -52,17 +54,23 @@ def move_and_link(src, target, replaceIfExists=False):
           print "Target dir exists: %s. Replacing." % targetFile
         
         if os.path.isdir(targetFile):
+          print "rm -r %s" % targetFile
           shutil.rmtree(targetFile)
         else:
+          print "rm %s" % targetFile
           os.remove(targetFile)
-        
+      
       if os.path.isdir(srcFile):
+        print "cp -r %s %s" % (srcFile, targetFile)
         shutil.copytree(srcFile, targetFile)
       else:
+        print "cp %s %s" % (srcFile, targetFile)
         shutil.copy(srcFile, targetFile)
     
+    print "rm -r %s" % src
     shutil.rmtree(src)
   
+  print "ln -s %s %s" % (target, src)
   os.symlink(target, src)
 
 
@@ -84,7 +92,6 @@ APROX_DEVMODE_ENVAR = 'APROX_DEV'
 
 
 # Defaults
-DEF_APROX_VERSION='@aproxVersion@'
 DEF_APROX_FLAVOR='savant'
 
 DEF_APROX_BINARY_URL_FORMAT = 'http://repo.maven.apache.org/maven2/org/commonjava/aprox/launch/aprox-launcher-{flavor}/{version}/aprox-launcher-{flavor}-{version}-launcher.tar.gz'
@@ -112,7 +119,7 @@ LOGS = '/var/log/aprox'
 devmode = os.environ.get(APROX_DEVMODE_ENVAR)
 
 # aprox release to use
-version=os.environ.get(APROX_VERSION_ENVAR) or DEF_APROX_VERSION
+version=os.environ.get(APROX_VERSION_ENVAR)
 
 # currently one of: rest-min, easyprox, savant
 flavor=os.environ.get(APROX_FLAVOR_ENVAR) or DEF_APROX_FLAVOR
@@ -169,7 +176,7 @@ if os.path.isdir(APROX_DIR) is False:
   if aproxEtcUrl is not None:
     print "Cloning: %s" % aproxEtcUrl
     shutil.rmtree(APROX_ETC)
-    run("git clone %s %s" % (aproxEtcUrl, APROX_ETC), "Failed to checkout aprox/etc from: %s" % aproxEtcUrl)
+    run("git clone --verbose --progress %s %s 2>&1" % (aproxEtcUrl, APROX_ETC), "Failed to checkout aprox/etc from: %s" % aproxEtcUrl)
   
   move_and_link(APROX_ETC, ETC_APROX, replaceIfExists=True)
   move_and_link(APROX_STORAGE, VAR_STORAGE)
