@@ -33,6 +33,8 @@ def runIn(cmd, workdir, fail_message='Error running command', fail=True):
 
 def move_and_link(src, target, replaceIfExists=False):
   print "Source: %s\nTarget: %s" % (src, target)
+  print "Whoami?"
+  run("whoami")
   print "Existing target listing:\n"
   run("ls -ld %s" % target)
   print "Existing target tree:\n"
