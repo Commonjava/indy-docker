@@ -11,6 +11,8 @@ URL_TEMPLATE="http://repo.maven.apache.org/maven2/org/commonjava/aprox/launch/ap
 NAME='aprox'
 IMAGE='buildchimp/aprox'
 
+APROX_BINARY_RE = re.compile('aprox-launcher-.+-launcher.tar.gz')
+
 SSHDIR=os.path.join(os.environ.get('HOME'), '.ssh')
 
 class PassThroughOptionParser(OptionParser):
@@ -84,6 +86,16 @@ def do(opts, args):
     cmd_opts.append("-v %s:/tmp/ssh" % opts.sshdir)
   
   if opts.devdir:
+    found=False
+    for file in os.listdir(opts.devdir):
+      if APROX_BINARY_RE.matches(file):
+        found=True
+        break
+    
+    if not found:
+      print "No deployable tarball found in: %s for dev-mode execution. Aborting." % opts.devdir
+      sys.exit(1)
+    
     chcon(opts.devdir)
     cmd_opts.append("-e APROX_DEV=true")
     cmd_opts.append("-v %s:/tmp/aprox" % opts.devdir)

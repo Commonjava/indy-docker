@@ -45,8 +45,8 @@ def parse():
   
   parser.add_option('-w', '--watchdir', help='Directory to watch for updated files')
   parser.add_option('-d', '--devdir', help='Directory to copy AProx tarballs to for deployment')
-  parser.add_option('-i', '--image', help='The image to use when deploying (default: builchimp/aprox-volumes)')
-  parser.add_option('-n', '--name', help='The container name under which to deploy AProx volume container (default: aprox-volumes)')
+  parser.add_option('-i', '--image', help='The image to use when deploying (default: builchimp/aprox)')
+  parser.add_option('-n', '--name', help='The container name under which to deploy AProx volume container (default: aprox)')
   parser.add_option('-s', '--service', help='The systemd service to manage when redeploying (default: aprox-server)')
   
   opts, args = parser.parse_args()
