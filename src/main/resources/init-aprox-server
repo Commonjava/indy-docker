@@ -1,30 +1,104 @@
-#!/bin/bash
+#!/usr/bin/python
 
-APROX_VERSION='@aproxVersion@'
-APROX_FLAVOR='savant'
+import os
+import sys
+from optparse import (OptionParser,BadOptionError,AmbiguousOptionError)
 
-APROX_PORTS="-p 8081:8081"
-#APROX_PORTS="${APROX_PORTS} -p 8000:8000" #For debugging.
+VERSION='@aproxVersion@'
+FLAVOR='savant'
+PORT=8081
+URL_TEMPLATE="http://repo.maven.apache.org/maven2/org/commonjava/aprox/launch/aprox-launcher-{flavor}/{version}/aprox-launcher-{flavor}-{version}-launcher.tar.gz"
+NAME='aprox'
+VOLS_NAME='aprox-volumes'
+IMAGE='buildchimp/aprox'
 
-APROX_BINARY_URL="http://repo.maven.apache.org/maven2/org/commonjava/aprox/launch/aprox-launcher-${APROX_FLAVOR}/${APROX_VERSION}/aprox-launcher-${APROX_FLAVOR}-${APROX_VERSION}-launcher.tar.gz"
+SSHDIR=os.path.join(os.environ.get('HOME'), '.ssh')
 
-APROX_ENVARS="-e APROX_BINARY_URL=${APROX_BINARY_URL}"
+class PassThroughOptionParser(OptionParser):
+    """
+    An unknown option pass-through implementation of OptionParser.
 
-#APROX_ETC_URL='http://github.com/myuser/my-aprox-etc.git'
-#APROX_ENVARS="${APROX_ENVARS} -e APROX_ETC_URL=${APROX_ETC_URL}"
+    When unknown arguments are encountered, bundle with largs and try again,
+    until rargs is depleted.  
 
-#APROX_OPTS=''
-#APROX_ENVARS="${APROX_ENVARS} -e APROX_OPTS=${APROX_OPTS}"
+    sys.exit(status) will still be called if a known argument is passed
+    incorrectly (e.g. missing arguments or bad argument types, etc.)        
+    """
+    def _process_args(self, largs, rargs, values):
+        while rargs:
+            try:
+                OptionParser._process_args(self,largs,rargs,values)
+            except (BadOptionError,AmbiguousOptionError), e:
+                largs.append(e.opt_str)
 
-SSHDIR=$HOME/.ssh
+def run(cmd, fail=True):
+  print cmd
+  ret = os.system(cmd)
+  if fail and ret != 0:
+    print "%s (failed with code: %s)" % (cmd, ret)
+    sys.exit(ret)
 
-chcon -Rt svirt_sandbox_file_t $SSHDIR
+def chcon(dir):
+  run("chcon -Rt svirt_sandbox_file_t %s" % dir)
 
-set -x
-docker run \
-    ${APROX_PORTS} \
-    ${APROX_ENVARS} \
-    -t --name="aprox" \
-    --volumes-from=aprox-volumes \
-    -v $SSHDIR:/tmp/ssh-config \
-    buildchimp/aprox
+def parse():
+  usage = """%prog [options]
+%prog [options] - [aprox options]"""
+  parser = PassThroughOptionParser(usage=usage)
+  parser.disable_interspersed_args()
+  
+  parser.add_option('-d', '--devdir', help='Directory to mount for devmode deployment (default: disabled, to use released version from URL)')
+  parser.add_option('-D', '--debug-port', help="Port on which AProx JPDA connector should listen (default: disabled)")
+  parser.add_option('-E', '--etc-url', help='URL from which to git-clone the etc/aprox directory (default: disabled)')
+  parser.add_option('-F', '--flavor', help='The flavor of AProx binary to deploy (default: savant)')
+  parser.add_option('-i', '--image', help='The image to use when deploying (default: builchimp/aprox)')
+  parser.add_option('-n', '--name', help='The container name under which to deploy AProx (default: aprox)')
+  parser.add_option('-p', '--port', help='Port on which AProx should listen (default: 8080)')
+  parser.add_option('-q', '--quiet', action='store_false', help="Don't start with TTY")
+  parser.add_option('-S', '--sshdir', help='Directory to mount for use as .ssh directory by AProx (default: disabled)')
+  parser.add_option('-U', '--url', help="URL from which to download AProx (default is calculated, using 'savant' flavor)")
+  parser.add_option('-v', '--vols', help='Docker container name from which to mount volumes (default aprox-volumes)')
+  parser.add_option('-V', '--version', help='The version of AProx to deploy (default: @aproxVersion@)')
+  
+  opts, args = parser.parse_args()
+  
+  return (opts,args)
+
+def run(opts, args):
+  cmd_opts = []
+  
+  cmd_opts.append("--name=%s" % (opts.name or NAME))
+  cmd_opts.append("--volumes-from=%s" % (opts.vols or VOLS_NAME))
+  
+  if not opts.quiet:
+    cmd_opts.append("-t")
+  
+  url=APROX_URL_TEMPLATE.format(flavor=(opts.flavor or FLAVOR), version=(opts.version or VERSION))
+  cmd_opts.append("-e APROX_BINARY_URL=%s" % url)
+  cmd_opts.append("-p %s:8081" % (opts.port or PORT))
+  
+  if opts.debug_port:
+    cmd_opts.append("-p %s:8000" % opts.debug_port)
+  
+  if opts.sshdir:
+    chcon(opts.sshdir)
+    cmd_opts.append("-v %s:/tmp/ssh" % opts.sshdir)
+  
+  if opts.devdir:
+    chcon(opts.devdir)
+    cmd_opts.append("-e APROX_DEV=true")
+    cmd_opts.append("-v %s:/tmp/aprox" % opts.devdir)
+  
+  if opts.etc_url:
+    cmd_opts.append("-e APROX_ETC_URL=%s" % opts.etc_url)
+  
+  if len(args) > 0:
+    cmd_opts.append("-e APROX_OPTS='%s'" % " ".join(args))
+  
+  cmd_opts.append(opts.image or IMAGE)
+
+  run("docker run %s" % " ".join(cmd_opts))
+
+if __name__ == '__main__':
+    opts, args = parse()
+    rv = run(opts, args)

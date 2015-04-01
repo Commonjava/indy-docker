@@ -1,3 +1,37 @@
-#!/bin/bash
+#!/usr/bin/python
 
-docker run -d --name="aprox-volumes" buildchimp/aprox-volumes
+import os
+import sys
+from optparse import OptionParser
+
+NAME='aprox-volumes'
+IMAGE='buildchimp/aprox-volumes'
+
+def run(cmd, fail=True):
+  print cmd
+  ret = os.system(cmd)
+  if fail and ret != 0:
+    print "%s (failed with code: %s)" % (cmd, ret)
+    sys.exit(ret)
+
+def parse():
+  usage = """%prog [options]"""
+  parser = OptionParser(usage=usage)
+  parser.disable_interspersed_args()
+  
+  parser.add_option('-i', '--image', help='The image to use when deploying (default: builchimp/aprox-volumes)')
+  parser.add_option('-n', '--name', help='The container name under which to deploy AProx volume container (default: aprox-volumes)')
+  
+  opts, args = parser.parse_args()
+  
+  return opts
+
+def run(opts):
+  name = opts.name or NAME
+  image = opts.image or IMAGE
+  
+  run("docker run -d --name='%s' %s" % (name, image))
+
+if __name__ == '__main__':
+    opts = parse()
+    rv = run(opts)
