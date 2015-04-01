@@ -62,7 +62,7 @@ def parse():
   
   return (opts,args)
 
-def run(opts, args):
+def do(opts, args):
   cmd_opts = []
   
   cmd_opts.append("--name=%s" % (opts.name or NAME))
@@ -100,4 +100,4 @@ def run(opts, args):
 
 if __name__ == '__main__':
     opts, args = parse()
-    rv = run(opts, args)
+    do(opts, args)

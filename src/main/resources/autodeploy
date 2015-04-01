@@ -78,7 +78,7 @@ def deploy(watch_file, watchdir, devdir, opts, init_cmd):
     run("systemctl start %s" % opts.service)
 
 
-def run(opts, init_cmd):
+def do(opts, init_cmd):
   watch = opts.watchdir or WATCH
   dev = opts.devdir or DEV
   
@@ -118,5 +118,5 @@ def run(opts, init_cmd):
     sys.exit(0)
 
 if __name__ == '__main__':
-    opts, init_cmd = parse()
-    rv = run(opts, init_cmd)
+    (opts, init_cmd) = parse()
+    do(opts, init_cmd)

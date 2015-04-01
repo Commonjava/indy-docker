@@ -24,14 +24,19 @@ def parse():
   
   opts, args = parser.parse_args()
   
-  return opts
+  return (opts)
 
-def run(opts):
-  name = opts.name or NAME
-  image = opts.image or IMAGE
+def do(opts):
+  name = NAME
+  if opts.name is not None:
+    name = opts.name
+  
+  image = IMAGE
+  if opts.image is not None:
+    image = opts.image
   
   run("docker run -d --name='%s' %s" % (name, image))
 
 if __name__ == '__main__':
     opts = parse()
-    rv = run(opts)
+    do(opts)
