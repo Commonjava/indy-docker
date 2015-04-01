@@ -14,23 +14,6 @@ IMAGE='buildchimp/aprox'
 
 APROX_BINARY_RE = re.compile('aprox-launcher-.+-launcher.tar.gz')
 
-class PassThroughOptionParser(OptionParser):
-    """
-    An unknown option pass-through implementation of OptionParser.
-
-    When unknown arguments are encountered, bundle with largs and try again,
-    until rargs is depleted.  
-
-    sys.exit(status) will still be called if a known argument is passed
-    incorrectly (e.g. missing arguments or bad argument types, etc.)        
-    """
-    def _process_args(self, largs, rargs, values):
-        while rargs:
-            try:
-                OptionParser._process_args(self,largs,rargs,values)
-            except (BadOptionError,AmbiguousOptionError), e:
-                largs.append(e.opt_str)
-
 def run(cmd, fail=True):
   print cmd
   ret = os.system(cmd)
@@ -40,7 +23,7 @@ def run(cmd, fail=True):
 
 def parse():
   usage = """%prog [options] <init-script> [init-options]"""
-  parser = PassThroughOptionParser(usage=usage)
+  parser = OptionParser(usage=usage)
   parser.disable_interspersed_args()
   
   parser.add_option('-w', '--watchdir', help='Directory to watch for updated files')
@@ -58,23 +41,30 @@ def parse():
 def deploy(watch_file, watchdir, devdir, opts, init_cmd):
   print "Deploying: %s" % watch_file
   
+  print "Clearing deployments directory: %s" % devdir
   for file in os.listdir(devdir):
     os.remove(os.path.join(devdir, file))
   
+  print "Moving deployment %s from: %s to: %s" % (watch_file, watchdir, devdir)
   shutil.move(os.path.join(watchdir, watch_file), os.path.join(devdir, watch_file))
   
   name = opts.name or NAME
   image = opts.image or IMAGE
   
   if opts.service and os.path.exists("/bin/systemctl"):
+    print "Stopping service: %s" % opts.service
     run("systemctl stop %s" % opts.service)
   
-  run("docker stop %s" % name)
-  run("docker rm %s" % name)
-  run("docker pull %s" % image)
+  print "Shutting down existing docker container"
+  run("docker stop %s" % name, fail=False)
+  run("docker rm %s" % name, fail=False)
+  run("docker pull %s" % image, fail=False)
+  
+  print "Running init command: %s" % init_cmd
   run(init_cmd)
   
   if opts.service and os.path.exists("/bin/systemctl"):
+    print "Startingservice: %s" % opts.service
     run("systemctl start %s" % opts.service)
 
 
@@ -87,7 +77,7 @@ def do(opts, init_cmd):
   if len(files) > 0:
     files.sort(key=lambda x: os.stat(os.path.join(watch, x)).st_mtime, reverse=True)
     for file in files:
-      if APROX_BINARY_RE.matches(file):
+      if APROX_BINARY_RE.match(file):
         watch_file = file
         break
   
@@ -100,7 +90,7 @@ def do(opts, init_cmd):
   if len(files) > 0:
     files.sort(key=lambda x: os.stat(os.path.join(dev, x)).st_mtime, reverse=True)
     for file in files:
-      if APROX_BINARY_RE.matches(file):
+      if APROX_BINARY_RE.match(file):
         dev_file = file
         break
   

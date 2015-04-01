@@ -2,6 +2,7 @@
 
 import os
 import sys
+import re
 from optparse import (OptionParser,BadOptionError,AmbiguousOptionError)
 
 VERSION='@aproxVersion@'
@@ -16,23 +17,6 @@ APROX_BINARY_RE = re.compile('aprox-launcher-.+-launcher.tar.gz')
 
 SSHDIR=os.path.join(os.environ.get('HOME'), '.ssh')
 
-class PassThroughOptionParser(OptionParser):
-    """
-    An unknown option pass-through implementation of OptionParser.
-
-    When unknown arguments are encountered, bundle with largs and try again,
-    until rargs is depleted.  
-
-    sys.exit(status) will still be called if a known argument is passed
-    incorrectly (e.g. missing arguments or bad argument types, etc.)        
-    """
-    def _process_args(self, largs, rargs, values):
-        while rargs:
-            try:
-                OptionParser._process_args(self,largs,rargs,values)
-            except (BadOptionError,AmbiguousOptionError), e:
-                largs.append(e.opt_str)
-
 def run(cmd, fail=True):
   print cmd
   ret = os.system(cmd)
@@ -46,7 +30,7 @@ def chcon(dir):
 def parse():
   usage = """%prog [options]
 %prog [options] - [aprox options]"""
-  parser = PassThroughOptionParser(usage=usage)
+  parser = OptionParser(usage=usage)
   parser.disable_interspersed_args()
   
   parser.add_option('-d', '--devdir', help='Directory to mount for devmode deployment (default: disabled, to use released version from URL)')
@@ -72,7 +56,7 @@ def do(opts, args):
   cmd_opts.append("--name=%s" % (opts.name or NAME))
   cmd_opts.append("--volumes-from=%s" % (opts.vols or VOLS_NAME))
   
-  if opts.quiet:
+  if opts.quiet is False:
     cmd_opts.append("-d")
   else:
     cmd_opts.append("-t")
@@ -91,7 +75,7 @@ def do(opts, args):
   if opts.devdir:
     found=False
     for file in os.listdir(opts.devdir):
-      if APROX_BINARY_RE.matches(file):
+      if APROX_BINARY_RE.match(file):
         found=True
         break
     
