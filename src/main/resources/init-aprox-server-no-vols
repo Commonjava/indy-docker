@@ -67,7 +67,9 @@ def run(opts, args):
   
   cmd_opts.append("--name=%s" % (opts.name or NAME))
   
-  if not opts.quiet:
+  if opts.quiet:
+    cmd_opts.append("-d")
+  else:
     cmd_opts.append("-t")
   
   url=APROX_URL_TEMPLATE.format(flavor=(opts.flavor or FLAVOR), version=(opts.version or VERSION))
