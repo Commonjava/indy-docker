@@ -1,0 +1,122 @@
+#!/usr/bin/python
+
+import os
+import sys
+import hashlib
+import re
+import shutil
+from optparse import (OptionParser,BadOptionError,AmbiguousOptionError)
+
+WATCH=os.path.join(os.environ.get("HOME"), "aprox-watched")
+DEV=os.path.join(os.environ.get("HOME"), "aprox-dev")
+NAME='aprox'
+IMAGE='buildchimp/aprox'
+
+APROX_BINARY_RE = re.compile('aprox-launcher-.+-launcher.tar.gz')
+
+class PassThroughOptionParser(OptionParser):
+    """
+    An unknown option pass-through implementation of OptionParser.
+
+    When unknown arguments are encountered, bundle with largs and try again,
+    until rargs is depleted.  
+
+    sys.exit(status) will still be called if a known argument is passed
+    incorrectly (e.g. missing arguments or bad argument types, etc.)        
+    """
+    def _process_args(self, largs, rargs, values):
+        while rargs:
+            try:
+                OptionParser._process_args(self,largs,rargs,values)
+            except (BadOptionError,AmbiguousOptionError), e:
+                largs.append(e.opt_str)
+
+def run(cmd, fail=True):
+  print cmd
+  ret = os.system(cmd)
+  if fail and ret != 0:
+    print "%s (failed with code: %s)" % (cmd, ret)
+    sys.exit(ret)
+
+def parse():
+  usage = """%prog [options] <init-script> [init-options]"""
+  parser = PassThroughOptionParser(usage=usage)
+  parser.disable_interspersed_args()
+  
+  parser.add_option('-w', '--watchdir', help='Directory to watch for updated files')
+  parser.add_option('-d', '--devdir', help='Directory to copy AProx tarballs to for deployment')
+  parser.add_option('-i', '--image', help='The image to use when deploying (default: builchimp/aprox-volumes)')
+  parser.add_option('-n', '--name', help='The container name under which to deploy AProx volume container (default: aprox-volumes)')
+  parser.add_option('-s', '--service', help='The systemd service to manage when redeploying (default: aprox-server)')
+  
+  opts, args = parser.parse_args()
+  
+  init_cmd = " ".join(args)
+  
+  return (opts, init_cmd)
+
+def deploy(watch_file, watchdir, devdir, opts, init_cmd):
+  print "Deploying: %s" % watch_file
+  
+  for file in os.listdir(devdir):
+    os.remove(os.path.join(devdir, file))
+  
+  shutil.move(os.path.join(watchdir, watch_file), os.path.join(devdir, watch_file))
+  
+  name = opts.name or NAME
+  image = opts.image or IMAGE
+  
+  if opts.service and os.path.exists("/bin/systemctl"):
+    run("systemctl stop %s" % opts.service)
+  
+  run("docker stop %s" % name)
+  run("docker rm %s" % name)
+  run("docker pull %s" % image)
+  run(init_cmd)
+  
+  if opts.service and os.path.exists("/bin/systemctl"):
+    run("systemctl start %s" % opts.service)
+
+
+def do(opts, init_cmd):
+  watch = opts.watchdir or WATCH
+  dev = opts.devdir or DEV
+  
+  files = os.listdir(watch)
+  watch_file = None
+  if len(files) > 0:
+    files.sort(key=lambda x: os.stat(os.path.join(watch, x)).st_mtime, reverse=True)
+    for file in files:
+      if APROX_BINARY_RE.matches(file):
+        watch_file = file
+        break
+  
+  if watch_file is None:
+    print "No deployable file found in: %s" % watch
+    sys.exit(0)
+  
+  dev_file=None
+  files = os.listdir(dev)
+  if len(files) > 0:
+    files.sort(key=lambda x: os.stat(os.path.join(dev, x)).st_mtime, reverse=True)
+    for file in files:
+      if APROX_BINARY_RE.matches(file):
+        dev_file = file
+        break
+  
+  do_deploy=True
+  if dev_file is not None:
+    watch_sha = hashlib.sha256(open(os.path.join(watch, watch_file), 'rb').read()).hexdigest()
+    dev_sha = hashlib.sha256(open(os.path.join(dev, dev_file), 'rb').read()).hexdigest()
+    if watch_sha == dev_sha:
+      do_deploy = False
+  
+  if do_deploy:
+    deploy( watch_file, watch, dev, opts, init_cmd )
+  else:
+    print "Nothing has changed; nothing to deploy"
+    sys.exit(0)
+
+if __name__ == '__main__':
+    (opts, init_cmd) = parse()
+    do(opts, init_cmd)

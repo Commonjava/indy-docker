@@ -6,8 +6,11 @@ This repository contains a set of init scripts for setting up aprox docker conta
   * An AProx server container meant to work with the volume container (`init-aprox-server`)
   * A standalone AProx server container (`init-aprox-server-no-vols`)
 
-It also contains systemd scripts for maintaining active AProx containers, one apiece corresponding to the 
-init scripts above.
+You can run any of the above scripts with `-h` to see the available options.
+
+It also contains an autodeploy script (`autodeploy-aprox-server`) that you can add to your cron jobs, 
+to autodeploy an AProx tarball in dev-mode. Systemd scripts are provided in the `systemd/` directory, 
+for maintaining active AProx containers, with one service definition for each of the init scripts above.
 
 Finally, it contains the docker image source materials (Dockerfile + supporting scripts) for the two basic
 image types (server and volume container).
@@ -26,12 +29,14 @@ to turn it into a really functional script:
     curl http://repo.maven.apache.org/maven2/org/commonjava/aprox/docker/aprox-docker-utils/0.19.1/aprox-docker-utils-0.19.1.tar.gz | tar -zxv
     cd aprox-docker-utils
     
+    # ./init-aprox-volumes -h
     ./init-aprox-volumes
     
-    # You might want to edit the port envar or some of the other options 
-    # in this script before executing. When you execute, wait for the server
-    # to indicate that it's running, hit CTL-C, and proceed below.
-    ./init-aprox-server
+    # ./init-aprox-server -h
+    ./init-aprox-server -p 80 -q
+    
+    #Or, if you want, you can leave off the '-q' option and watch the server come up
+    #...then use CTL-C to exit the tty (the container will keep running)
     
     cp systemd/aprox-volumes.service systemd/aprox-server.service /etc/systemd/system
     systemctl enable aprox-volumes aprox-server
