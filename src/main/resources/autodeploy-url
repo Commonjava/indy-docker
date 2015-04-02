@@ -2,6 +2,7 @@
 
 from lxml import objectify
 from lxml import etree
+import lxml
 import httplib2
 import os
 import sys
@@ -15,34 +16,48 @@ IMAGE='buildchimp/aprox'
 VERSIONFILE=os.path.join(os.environ.get('HOME'), '.autodeploy.last')
 
 class Metadata(object):
-  def __init__(self,doc):
+  def __init__(self, doc, verbose):
     self.xml = doc
-    self.data = self.xml.data
+    self.verbose = verbose
   
   def getLatestSnapshot(self):
     timestamp = None
     build = None
-    if len(self.data.versioning.snapshot) and self.data.versioning.snapshot.getchildren() and len(self.data.versioning.snapshot.getchildren()):
-      timestamp = self.data.versioning.snapshot['timestamp']
-      build = self.data.versioning.snapshot['buildNumber']
+    if len(self.xml.versioning.snapshot) and self.xml.versioning.snapshot.getchildren() and len(self.xml.versioning.snapshot.getchildren()):
+      if self.verbose is True:
+        print(lxml.objectify.dump(self.xml.versioning.snapshot))
+      
+      timestamp = "{:.6f}".format(float(self.xml.versioning.snapshot.timestamp))
+      build = self.xml.versioning.snapshot.buildNumber
+      if self.verbose is True:
+        print "Found timestamp: %s, build-number: %s" % (timestamp, build)
     
     version = None
-    if timestamp is not None and len(self.data.versioning.snapshotVersions) and self.data.versioning.snapshotVersions.getchildren():
+    if timestamp is not None and len(self.xml.versioning.snapshotVersions) and self.xml.versioning.snapshotVersions.getchildren():
       suffix = "%s-%s" % (timestamp, build)
-      for v in self.data.versioning.snapshotVersions['snapshotVersion']:
+      if self.verbose is True:
+        print "Searching for version ending with: %s" % suffix
+      
+      for v in self.xml.versioning.snapshotVersions['snapshotVersion']:
         if v.getchildren():
-          ver = v.value
+          ver = str(v.value)
           if ver.endswith(suffix):
             version = ver
             break
     
+    if self.verbose is True:
+      print "Returning latest snapshot: %s" % version
     return version
   
   def getLatestRelease(self):
-    if self.data.versioning.getchildren() and len(self.data.versioning.getchildren()):
-      return self.data.versioning['release']
+    version = None
+    if self.xml.versioning.getchildren() and len(self.xml.versioning.getchildren()):
+      version = str(self.xml.versioning['release'])
     
-    return None
+    if self.verbose is True:
+      print "Returning latest release: %s" % version
+      
+    return version
 
 def run(cmd, fail=True):
   print cmd
@@ -67,6 +82,8 @@ def parse():
   
   opts, args = parser.parse_args()
   
+  if opts.verbose is True:
+    print "Args: '%s'" % " ".join(args)
   init_cmd_template = " ".join(args)
   if not '{url}' in init_cmd_template:
     init_cmd_template += ' {url}'
@@ -81,7 +98,9 @@ def getMetadataVersion(opts):
     'Content-Type': 'application/xml',
   }
   
-  response,content = self.http_client.request(opts.url, headers=headers)
+  if opts.verbose is True:
+    print "Parsing metadata at: %s" % opts.url
+  response,content = http_client.request(opts.url, headers=headers)
   
   if response.status == 404:
     if opts.verbose is True:
@@ -91,8 +110,11 @@ def getMetadataVersion(opts):
     print "GET %s failed: %s" % (path, response.status)
     sys.exit(1)
   
+  if opts.verbose is True:
+    print "Parsing xml:\n%s" % content
+  
   doc = objectify.fromstring(content)
-  meta = Metadata(doc)
+  meta = Metadata(doc, verbose=opts.verbose)
   
   if opts.release is True:
     return meta.getLatestRelease()
@@ -100,7 +122,7 @@ def getMetadataVersion(opts):
     return meta.getLatestSnapshot()
 
 def deploy(opts, init_cmd):
-  print "Deploying: %s" % url
+  print "Deploying: '%s'" % init_cmd
   
   name = opts.name or NAME
   image = opts.image or IMAGE
@@ -126,6 +148,8 @@ def deploy(opts, init_cmd):
 
 def do(opts, init_cmd_template):
   version = getMetadataVersion(opts)
+  if opts.verbose is True:
+    print "Version from metadata is: %s" % version
   
   if version is None:
     if opts.verbose is True:
@@ -133,10 +157,16 @@ def do(opts, init_cmd_template):
     sys.exit(0)
   
   versionfile = opts.versionfile or VERSIONFILE
+  if opts.verbose is True:
+    print "Checking last-deployed version recorded in: %s" % versionfile
+
   deployed_version = None
   if os.path.exists(versionfile) and os.path.isfile(versionfile):
     with open(versionfile, "r") as vf:
       deployed_version=vf.read().replace('\n', '')
+  
+  if opts.verbose is True:
+    print "Last deployed version is: %s" % deployed_version
   
   if deployed_version is not None and version == deployed_version:
     if opts.verbose is True:
@@ -149,10 +179,13 @@ def do(opts, init_cmd_template):
       url = "{base}/{version}/{artifact_id}-{version}-launcher.tar.gz".format(base=base_url, version=version, artifact_id=artifact_id)
     else:
       artifact_id = os.path.basename(os.path.dirname(base_url))
-      url = "{base}/{version}/{artifact_id}-{version}-launcher.tar.gz".format(base=base_url, version=version, artifact_id=artifact_id)
+      url = "{base}/{artifact_id}-{version}-launcher.tar.gz".format(base=base_url, version=version, artifact_id=artifact_id)
+    
+    if opts.verbose is True:
+      print "Deployment URL: %s" % url
 
     if url is not None:
-      deploy(opts, init_cmd.format(url=url))
+      deploy(opts, init_cmd_template.format(url=url))
       with open(versionfile, "w+") as vf:
         vf.write(version)
 

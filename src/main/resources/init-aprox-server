@@ -61,7 +61,7 @@ def do(opts, args):
   else:
     cmd_opts.append("-t")
   
-  url=URL_TEMPLATE.format(flavor=(opts.flavor or FLAVOR), version=(opts.version or VERSION))
+  url=opts.url or URL_TEMPLATE.format(flavor=(opts.flavor or FLAVOR), version=(opts.version or VERSION))
   cmd_opts.append("-e APROX_BINARY_URL=%s" % url)
   cmd_opts.append("-p %s:8081" % (opts.port or PORT))
   
