@@ -152,7 +152,7 @@ def do(opts, init_cmd_template):
       url = "{base}/{version}/{artifact_id}-{version}-launcher.tar.gz".format(base=base_url, version=version, artifact_id=artifact_id)
 
     if url is not None:
-      deploy( opts, init_cmd.format(url=url)
+      deploy(opts, init_cmd.format(url=url))
       with open(versionfile, "w+") as vf:
         vf.write(version)
 
