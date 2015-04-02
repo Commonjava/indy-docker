@@ -135,8 +135,8 @@ def do(opts, init_cmd_template):
   versionfile = opts.versionfile or VERSIONFILE
   deployed_version = None
   if os.path.exists(versionfile) and os.path.isfile(versionfile):
-    with open (versionfile, "r") as vfile:
-      deployed_version=vfile.read().replace('\n', '')
+    with open(versionfile, "r") as vf:
+      deployed_version=vf.read().replace('\n', '')
   
   if deployed_version is not None and version == deployed_version:
     if opts.verbose is True:
@@ -153,8 +153,8 @@ def do(opts, init_cmd_template):
 
     if url is not None:
       deploy( opts, init_cmd.format(url=url)
-      with open (versionfile, "r") as vfile:
-        vfile.write(version)
+      with open(versionfile, "w+") as vf:
+        vf.write(version)
 
 if __name__ == '__main__':
     (opts, init_cmd_template) = parse()
