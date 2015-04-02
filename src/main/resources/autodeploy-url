@@ -1,0 +1,161 @@
+#!/usr/bin/python
+
+from lxml import objectify
+from lxml import etree
+import httplib2
+import os
+import sys
+import hashlib
+import re
+import shutil
+from optparse import (OptionParser,BadOptionError,AmbiguousOptionError)
+
+NAME='aprox'
+IMAGE='buildchimp/aprox'
+VERSIONFILE=os.path.join(os.environ.get('HOME'), '.autodeploy.last')
+
+class Metadata(object):
+  def __init__(self,doc):
+    self.xml = doc
+    self.data = self.xml.data
+  
+  def getLatestSnapshot(self):
+    timestamp = None
+    build = None
+    if len(self.data.versioning.snapshot) and self.data.versioning.snapshot.getchildren() and len(self.data.versioning.snapshot.getchildren()):
+      timestamp = self.data.versioning.snapshot['timestamp']
+      build = self.data.versioning.snapshot['buildNumber']
+    
+    version = None
+    if timestamp is not None and len(self.data.versioning.snapshotVersions) and self.data.versioning.snapshotVersions.getchildren():
+      suffix = "%s-%s" % (timestamp, build)
+      for v in self.data.versioning.snapshotVersions['snapshotVersion']:
+        if v.getchildren():
+          ver = v.value
+          if ver.endswith(suffix):
+            version = ver
+            break
+    
+    return version
+  
+  def getLatestRelease(self):
+    if self.data.versioning.getchildren() and len(self.data.versioning.getchildren()):
+      return self.data.versioning['release']
+    
+    return None
+
+def run(cmd, fail=True):
+  print cmd
+  ret = os.system(cmd)
+  if fail and ret != 0:
+    print "%s (failed with code: %s)" % (cmd, ret)
+    sys.exit(ret)
+
+def parse():
+  usage = """%prog [options] <init-script> [init-options]"""
+  parser = OptionParser(usage=usage)
+  parser.disable_interspersed_args()
+  
+  parser.add_option('-i', '--image', help='The image to use when deploying (default: builchimp/aprox)')
+  parser.add_option('-n', '--name', help='The container name under which to deploy AProx volume container (default: aprox)')
+  parser.add_option('-r', '--release', action='store_true', help='Treat the metadata as version metadata, not snapshot metadata')
+  parser.add_option('-s', '--service', help='The systemd service to manage when redeploying (default: aprox-server)')
+  parser.add_option('-S', '--unsafe-ssl', action='store_true', help='Disable verification of SSL certificate (DANGEROUS)')
+  parser.add_option('-u', '--url', help='URL to maven-metadata.xml to watch for updates')
+  parser.add_option('-v', '--verbose', action='store_true', help='Turn on verbose feedback')
+  parser.add_option('-V', '--versionfile', help='File to track the last deployed version of AProx')
+  
+  opts, args = parser.parse_args()
+  
+  init_cmd_template = " ".join(args)
+  if not '{url}' in init_cmd_template:
+    init_cmd_template += ' {url}'
+  
+  return (opts, init_cmd_template)
+
+def getMetadataVersion(opts):
+  disable_ssl_validation = opts.unsafe_ssl or False
+  http_client = httplib2.Http(disable_ssl_certificate_validation=disable_ssl_validation)
+  headers = {
+    'Accept': 'application/xml',
+    'Content-Type': 'application/xml',
+  }
+  
+  response,content = self.http_client.request(opts.url, headers=headers)
+  
+  if response.status == 404:
+    if opts.verbose is True:
+      print "%s not found" % url
+    sys.exit(0)
+  elif response.status != 200:
+    print "GET %s failed: %s" % (path, response.status)
+    sys.exit(1)
+  
+  doc = objectify.fromstring(content)
+  meta = Metadata(doc)
+  
+  if opts.release is True:
+    return meta.getLatestRelease()
+  else:
+    return meta.getLatestSnapshot()
+
+def deploy(opts, init_cmd):
+  print "Deploying: %s" % url
+  
+  name = opts.name or NAME
+  image = opts.image or IMAGE
+  
+  if opts.service and os.path.exists("/bin/systemctl"):
+    if opts.verbose is True:
+      print "Stopping service: %s" % opts.service
+    run("systemctl stop %s" % opts.service)
+  
+  if opts.verbose is True:
+    print "Shutting down existing docker container"
+  run("docker stop %s" % name, fail=False)
+  run("docker rm %s" % name, fail=False)
+  run("docker pull %s" % image, fail=False)
+  
+  if opts.verbose is True:
+    print "Running init command: %s" % init_cmd
+  run(init_cmd)
+  
+  if opts.service and os.path.exists("/bin/systemctl"):
+    print "Startingservice: %s" % opts.service
+    run("systemctl start %s" % opts.service)
+
+def do(opts, init_cmd_template):
+  version = getMetadataVersion(opts)
+  
+  if version is None:
+    if opts.verbose is True:
+      print "No versions available in metadata: %s" % opts.url
+    sys.exit(0)
+  
+  versionfile = opts.versionfile or VERSIONFILE
+  deployed_version = None
+  if os.path.exists(versionfile) and os.path.isfile(versionfile):
+    with open (versionfile, "r") as vfile:
+      deployed_version=vfile.read().replace('\n', '')
+  
+  if deployed_version is not None and version == deployed_version:
+    if opts.verbose is True:
+      print "No new versions available in metadata: %s (deployed version: %s, metadata version: %s)" % (opts.url, deployed_version, version)
+    sys.exit(0)
+  else:
+    base_url = os.path.dirname(opts.url)
+    if opts.release is True:
+      artifact_id = os.path.basename(base_url)
+      url = "{base}/{version}/{artifact_id}-{version}-launcher.tar.gz".format(base=base_url, version=version, artifact_id=artifact_id)
+    else:
+      artifact_id = os.path.basename(os.path.dirname(base_url))
+      url = "{base}/{version}/{artifact_id}-{version}-launcher.tar.gz".format(base=base_url, version=version, artifact_id=artifact_id)
+
+    if url is not None:
+      deploy( opts, init_cmd.format(url=url)
+      with open (versionfile, "r") as vfile:
+        vfile.write(version)
+
+if __name__ == '__main__':
+    (opts, init_cmd_template) = parse()
+    do(opts, init_cmd_template)
