@@ -23,7 +23,8 @@ to turn it into a really functional script:
     #!/bin/bash
     
     yum -y update
-    yum -y install docker tree lsof
+    yum -y install epel-release
+    yum -y install docker tree lsof python-lxml python-httplib2
     systemctl enable docker
     systemctl start docker
     curl http://repo.maven.apache.org/maven2/org/commonjava/aprox/docker/aprox-docker-utils/0.19.1/aprox-docker-utils-0.19.1.tar.gz | tar -zxv

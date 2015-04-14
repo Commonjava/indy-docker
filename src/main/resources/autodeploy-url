@@ -52,7 +52,9 @@ class Metadata(object):
   def getLatestRelease(self):
     version = None
     if self.xml.versioning.getchildren() and len(self.xml.versioning.getchildren()):
-      version = str(self.xml.versioning['release'])
+      # TODO: If this is a FloatElement or similar, the string rendering will be WRONG.
+      # See snapshot timestamp above.
+      version = str(self.xml.versioning.release)
     
     if self.verbose is True:
       print "Returning latest release: %s" % version
