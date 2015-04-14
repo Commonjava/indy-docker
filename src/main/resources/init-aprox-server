@@ -70,7 +70,7 @@ def do(opts, args):
   
   if opts.sshdir:
     chcon(opts.sshdir)
-    cmd_opts.append("-v %s:/tmp/ssh" % opts.sshdir)
+    cmd_opts.append("-v %s:/tmp/ssh-config" % opts.sshdir)
   
   if opts.devdir:
     found=False
