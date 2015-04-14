@@ -8,22 +8,24 @@ import shutil
 import fnmatch
 
 def run(cmd, fail_message='Error running command', fail=True):
+  cmd += " 2>&1"
   print cmd
   ret = os.system(cmd)
-  if fail and ret != 0:
+  if fail is True and ret != 0:
     print "%s (failed with code: %s)" % (fail_message, ret)
     sys.exit(ret)
 
 
 
 def runIn(cmd, workdir, fail_message='Error running command', fail=True):
+  cmd += " 2>&1"
   olddir = os.getcwd()
   os.chdir(workdir)
   
   print "In: %s, executing: %s" % (workdir, cmd)
   
   ret = os.system(cmd)
-  if fail and ret != 0:
+  if fail is True and ret != 0:
     print "%s (failed with code: %s)" % (fail_message, ret)
     sys.exit(ret)
   
