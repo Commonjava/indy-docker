@@ -25,22 +25,19 @@
 
   <fileSets>
     <fileSet>
-      <directory>${project.build.outputDirectory}</directory>
+      <directory>${project.basedir}</directory>
       <outputDirectory>/</outputDirectory>
       <fileMode>775</fileMode>
       <directoryMode>775</directoryMode>
       <includes>
         <include>*</include>
+        <include>aprox-*/**/*</include>
+        <include>systemd/**/*</include>
+        <include>utils/**/*</include>
       </includes>
-    </fileSet>
-    <fileSet>
-      <directory>${project.build.outputDirectory}</directory>
-      <outputDirectory>/</outputDirectory>
       <excludes>
-        <exclude>*</exclude>
+        <exclude>pom.xml</exclude>
       </excludes>
-      <fileMode>664</fileMode>
-      <directoryMode>775</directoryMode>
     </fileSet>
   </fileSets>
 </assembly>
