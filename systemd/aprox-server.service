@@ -14,19 +14,19 @@
 # limitations under the License.
 #
 
-FROM centos
+# 1. Put in /etc/systemd/system/
+# 2. Execute `systemctl enable aprox-server` to install
 
-MAINTAINER John Casey <jdcasey@commonjava.org>
+[Unit]
+Description=AProx Server Container
+Requires=aprox-volumes.service
+After=aprox-volumes.service
 
-RUN yum -y update
-RUN yum -y install wget git tar which curl tree java-1.7.0-openjdk-devel
+[Service]
+Restart=always
+RestartSec=10
+ExecStart=/usr/bin/docker start -a aprox
+ExecStop=/usr/bin/docker stop -t 2 aprox
 
-VOLUME /var/lib/aprox/storage /var/lib/aprox/data /var/log/aprox /etc/aprox /tmp/aprox /tmp/ssh-config
-
-EXPOSE 8081
-EXPOSE 8000
-
-ADD start-aprox.py /usr/local/bin/start-aprox.py
-RUN chmod +x /usr/local/bin/start-aprox.py
-
-CMD "/usr/local/bin/start-aprox.py"
+[Install]
+WantedBy=multi-user.target
