@@ -38,8 +38,17 @@
   <build>
     <resources>
       <resource>
-        <directory>src/main/resources</directory>
+        <directory>${project.basedir}</directory>
         <filtering>true</filtering>
+        <excludes>
+          <exclude>src/**</exclude>
+          <exclude>target</exclude>
+          <exclude>pom.xml</exclude>
+          <exclude>README.md</exclude>
+          <exclude>LICENSE</exclude>
+          <exclude>aprox-server</exclude>
+          <exclude>aprox-volumes</exclude>
+        </excludes>
       </resource>
     </resources>
     <plugins>
