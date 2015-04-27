@@ -33,10 +33,6 @@
 
   <name>AProx :: Docker Utilities</name>
   
-  <properties>
-    <aproxVersion>0.19.2</aproxVersion>
-  </properties>
-  
   <scm>
     <connection>scm:git:https://github.com/jdcasey/aprox-docker.git</connection>
     <developerConnection>scm:git:git@github.com:jdcasey/aprox-docker.git</developerConnection>
@@ -45,21 +41,6 @@
   </scm>
   
   <build>
-    <resources>
-      <resource>
-        <directory>${project.basedir}</directory>
-        <filtering>true</filtering>
-        <excludes>
-          <exclude>src/**</exclude>
-          <exclude>target</exclude>
-          <exclude>pom.xml</exclude>
-          <exclude>README.md</exclude>
-          <exclude>LICENSE</exclude>
-          <exclude>aprox-server</exclude>
-          <exclude>aprox-volumes</exclude>
-        </excludes>
-      </resource>
-    </resources>
     <pluginManagement>
       <plugins>
         <plugin>
@@ -90,19 +71,6 @@
       </plugins>
     </pluginManagement>
     <plugins>
-      <plugin>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>2.7</version>
-        <executions>
-          <execution>
-            <id>filter-resources</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>resources</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>

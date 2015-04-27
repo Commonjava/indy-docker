@@ -20,17 +20,7 @@ import os
 import sys
 import re
 from optparse import (OptionParser,BadOptionError,AmbiguousOptionError)
-
-VERSION='@aproxVersion@'
-FLAVOR='savant'
-PORT=8081
-URL_TEMPLATE="http://repo.maven.apache.org/maven2/org/commonjava/aprox/launch/aprox-launcher-{flavor}/{version}/aprox-launcher-{flavor}-{version}-launcher.tar.gz"
-NAME='aprox'
-IMAGE='buildchimp/aprox'
-
-APROX_BINARY_RE = re.compile('aprox-launcher-.+-launcher.tar.gz')
-
-SSHDIR=os.path.join(os.environ.get('HOME'), '.ssh')
+from aprox import *
 
 def run(cmd, fail=True):
   print cmd
@@ -51,14 +41,14 @@ def parse():
   parser.add_option('-d', '--devdir', help='Directory to mount for devmode deployment (default: disabled, to use released version from URL)')
   parser.add_option('-D', '--debug-port', help="Port on which AProx JPDA connector should listen (default: disabled)")
   parser.add_option('-E', '--etc-url', help='URL from which to git-clone the etc/aprox directory (default: disabled)')
-  parser.add_option('-F', '--flavor', help='The flavor of AProx binary to deploy (default: savant)')
-  parser.add_option('-i', '--image', help='The image to use when deploying (default: builchimp/aprox)')
-  parser.add_option('-n', '--name', help='The container name under which to deploy AProx (default: aprox)')
-  parser.add_option('-p', '--port', help='Port on which AProx should listen (default: 8080)')
+  parser.add_option('-F', '--flavor', help="The flavor of AProx binary to deploy (default: %s)" % FLAVOR)
+  parser.add_option('-i', '--image', help="The image to use when deploying (default: %s)" % SERVER_IMAGE)
+  parser.add_option('-n', '--name', help="The container name under which to deploy AProx (default: %s)" % SERVER_NAME)
+  parser.add_option('-p', '--port', help="Port on which AProx should listen (default: %s)" % PORT)
   parser.add_option('-q', '--quiet', action='store_false', help="Don't start with TTY")
   parser.add_option('-S', '--sshdir', help='Directory to mount for use as .ssh directory by AProx (default: disabled)')
-  parser.add_option('-U', '--url', help="URL from which to download AProx (default is calculated, using 'savant' flavor)")
-  parser.add_option('-V', '--version', help='The version of AProx to deploy (default: @aproxVersion@)')
+  parser.add_option('-U', '--url', help="URL from which to download AProx (default is calculated, using '%s' flavor)" % FLAVOR)
+  parser.add_option('-V', '--version', help="The version of AProx to deploy (default: %s)" % VERSION)
   
   parser.add_option('--config', help="Volume mount for 'etc/aprox' configuration directory")
   parser.add_option('--data', help="Volume mount for state data files")
@@ -72,7 +62,7 @@ def parse():
 def do(opts, args):
   cmd_opts = []
   
-  cmd_opts.append("--name=%s" % (opts.name or NAME))
+  cmd_opts.append("--name=%s" % (opts.name or SERVER_NAME))
   
   if opts.quiet is False:
     cmd_opts.append("-d")
@@ -123,7 +113,7 @@ def do(opts, args):
   if len(args) > 0:
     cmd_opts.append("-e APROX_OPTS='%s'" % " ".join(args))
   
-  cmd_opts.append(opts.image or IMAGE)
+  cmd_opts.append(opts.image or SERVER_IMAGE)
 
   run("docker run %s" % " ".join(cmd_opts))
 

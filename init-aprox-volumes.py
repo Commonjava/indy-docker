@@ -19,9 +19,7 @@
 import os
 import sys
 from optparse import OptionParser
-
-NAME='aprox-volumes'
-IMAGE='buildchimp/aprox-volumes'
+from aprox import *
 
 def run(cmd, fail=True):
   print cmd
@@ -35,19 +33,19 @@ def parse():
   parser = OptionParser(usage=usage)
   parser.disable_interspersed_args()
   
-  parser.add_option('-i', '--image', help='The image to use when deploying (default: builchimp/aprox-volumes)')
-  parser.add_option('-n', '--name', help='The container name under which to deploy AProx volume container (default: aprox-volumes)')
+  parser.add_option('-i', '--image', help="The image to use when deploying (default: %s)" % VOLS_IMAGE)
+  parser.add_option('-n', '--name', help="The container name under which to deploy AProx volume container (default: %s)" % VOLS_NAME)
   
   opts, args = parser.parse_args()
   
   return (opts)
 
 def do(opts):
-  name = NAME
+  name = VOLS_NAME
   if opts.name is not None:
     name = opts.name
   
-  image = IMAGE
+  image = VOLS_IMAGE
   if opts.image is not None:
     image = opts.image
   
