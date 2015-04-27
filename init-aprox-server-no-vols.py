@@ -1,4 +1,20 @@
 #!/usr/bin/python
+#
+# Copyright (C) 2015 John Casey (jdcasey@commonjava.org)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 
 import os
 import sys
@@ -44,6 +60,11 @@ def parse():
   parser.add_option('-U', '--url', help="URL from which to download AProx (default is calculated, using 'savant' flavor)")
   parser.add_option('-V', '--version', help='The version of AProx to deploy (default: @aproxVersion@)')
   
+  parser.add_option('--config', help="Volume mount for 'etc/aprox' configuration directory")
+  parser.add_option('--data', help="Volume mount for state data files")
+  parser.add_option('--logs', help="Volume mount for logs")
+  parser.add_option('--storage', help="Volume mount for artifact storage")
+  
   opts, args = parser.parse_args()
   
   return (opts,args)
@@ -64,6 +85,18 @@ def do(opts, args):
   
   if opts.debug_port:
     cmd_opts.append("-p %s:8000" % opts.debug_port)
+  
+  if opts.config:
+    cmd_opts.append("-v %s:/etc/aprox" % opts.config)
+  
+  if opts.data:
+    cmd_opts.append("-v %s:/var/lib/aprox/data" % opts.data)
+  
+  if opts.logs:
+    cmd_opts.append("-v %s:/var/log/aprox" % opts.logs)
+  
+  if opts.storage:
+    cmd_opts.append("-v %s:/var/lib/aprox/storage" % opts.storage)
   
   if opts.sshdir:
     chcon(opts.sshdir)
