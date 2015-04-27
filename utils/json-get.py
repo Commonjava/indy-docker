@@ -1,3 +1,4 @@
+#!/usr/bin/python
 #
 # Copyright (C) 2015 John Casey (jdcasey@commonjava.org)
 #
@@ -14,19 +15,38 @@
 # limitations under the License.
 #
 
-FROM centos
 
-MAINTAINER John Casey <jdcasey@commonjava.org>
+import json
+import sys
 
-RUN yum -y update
-RUN yum -y install wget git tar which curl tree java-1.7.0-openjdk-devel
+def dump(data):
+    if type(data) is dict:
+        print json.dumps(data, indent=2)
+    else:
+        print data
 
-VOLUME /var/lib/aprox/storage /var/lib/aprox/data /var/log/aprox /etc/aprox /tmp/aprox /tmp/ssh-config
+if len(sys.argv) < 2:
+    print "No file specified. Usage: %s <file> [path]" % sys.argv[0]
+    sys.exit(1)
 
-EXPOSE 8081
-EXPOSE 8000
+file = sys.argv[1]
+path = None
 
-ADD start-aprox.py /usr/local/bin/start-aprox.py
-RUN chmod +x /usr/local/bin/start-aprox.py
+if len(sys.argv) > 2:
+    path = sys.argv[2]
 
-CMD "/usr/local/bin/start-aprox.py"
+with open(file, 'r') as json_file:
+    data = json.load(json_file)
+
+if path is None:
+    dump(data)
+else:
+    parts = path.split('|')
+    here=data
+    for part in parts:
+      if len(part) < 1:
+        continue
+      here = here[part]
+
+    dump(here)
+
