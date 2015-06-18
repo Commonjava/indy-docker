@@ -77,15 +77,19 @@ def do(opts, args):
     cmd_opts.append("-p %s:8000" % opts.debug_port)
   
   if opts.config:
+    chcon(opts.config)
     cmd_opts.append("-v %s:/etc/aprox" % opts.config)
   
   if opts.data:
+    chcon(opts.data)
     cmd_opts.append("-v %s:/var/lib/aprox/data" % opts.data)
   
   if opts.logs:
+    chcon(opts.logs)
     cmd_opts.append("-v %s:/var/log/aprox" % opts.logs)
   
   if opts.storage:
+    chcon(opts.storage)
     cmd_opts.append("-v %s:/var/lib/aprox/storage" % opts.storage)
   
   if opts.sshdir:
