@@ -45,6 +45,7 @@ def parse():
   parser.add_option('-i', '--image', help="The image to use when deploying (default: %s)" % SERVER_IMAGE)
   parser.add_option('-n', '--name', help="The container name under which to deploy AProx (default: %s)" % SERVER_NAME)
   parser.add_option('-p', '--port', help="Port on which AProx should listen (default: %s)" % PORT)
+  parser.add_option('-P', '--proxy-port', help="Port on which AProx's httprox add-on should listen (default: disabled)")
   parser.add_option('-q', '--quiet', action='store_false', help="Don't start with TTY")
   parser.add_option('-S', '--sshdir', help='Directory to mount for use as .ssh directory by AProx (default: disabled)')
   parser.add_option('-U', '--url', help="URL from which to download AProx (default is calculated, using '%s' flavor)" % FLAVOR)
@@ -71,10 +72,13 @@ def do(opts, args):
   
   url=opts.url or URL_TEMPLATE.format(flavor=(opts.flavor or FLAVOR), version=(opts.version or VERSION))
   cmd_opts.append("-e APROX_BINARY_URL=%s" % url)
-  cmd_opts.append("-p %s:8081" % (opts.port or PORT))
+  cmd_opts.append("-p %s:%s" % (opts.port or PORT, PORT))
+  
+  if opts.proxy_port:
+    cmd_opts.append("-p %s:%s" % (opts.proxy_port, PROXY_PORT))
   
   if opts.debug_port:
-    cmd_opts.append("-p %s:8000" % opts.debug_port)
+    cmd_opts.append("-p %s:%s" % (opts.debug_port, DEBUG_PORT))
   
   if opts.config:
     chcon(opts.config)
