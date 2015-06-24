@@ -104,7 +104,7 @@ def parse():
     print "Args: '%s'" % " ".join(args)
   init_cmd_template = " ".join(args)
   if not '{url}' in init_cmd_template:
-    init_cmd_template += ' {url}'
+    init_cmd_template += " --url='{url}'"
   
   return (opts, init_cmd_template)
 
