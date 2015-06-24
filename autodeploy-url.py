@@ -39,7 +39,7 @@ class Metadata(object):
   def getLatestSnapshot(self):
     timestamp = None
     build = None
-    if self.xml.versioning["snapshot"] and len(self.xml.versioning.snapshot) and self.xml.versioning.snapshot.getchildren() and len(self.xml.versioning.snapshot.getchildren()):
+    if self.xml.versioning["snapshot"] is not None and len(self.xml.versioning.snapshot) > 0 and self.xml.versioning.snapshot.getchildren() and len(self.xml.versioning.snapshot.getchildren()):
       if self.verbose is True:
         print(lxml.objectify.dump(self.xml.versioning.snapshot))
       
@@ -104,8 +104,9 @@ def parse():
     print "Args: '%s'" % " ".join(args)
   init_cmd_template = " ".join(args)
   if not '{url}' in init_cmd_template:
-    init_cmd_template += ' {url}'
+    init_cmd_template += " --url='{url}'"
   
+  print "Init command template:\n  %s" % init_cmd_template
   return (opts, init_cmd_template)
 
 def getMetadataVersion(opts):
