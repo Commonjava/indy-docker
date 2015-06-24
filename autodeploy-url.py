@@ -106,6 +106,7 @@ def parse():
   if not '{url}' in init_cmd_template:
     init_cmd_template += " --url='{url}'"
   
+  print "Init command template:\n  %s" % init_cmd_template
   return (opts, init_cmd_template)
 
 def getMetadataVersion(opts):
