@@ -19,7 +19,7 @@ import re
 
 VERSION='0.19.2'
 FLAVOR='savant'
-PORT=80
+PORT=8081
 PROXY_PORT=8080
 DEBUG_PORT=8000
 URL_TEMPLATE="http://repo.maven.apache.org/maven2/org/commonjava/aprox/launch/aprox-launcher-{flavor}/{version}/aprox-launcher-{flavor}-{version}-launcher.tar.gz"
