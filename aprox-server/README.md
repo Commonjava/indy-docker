@@ -2,6 +2,8 @@ This is a Docker image that runs an AProx server. It uses a CentOS base image, a
 
 This image is designed to work with the `aprox-volumes` Docker image, which provides storage of AProx caches, configuration, and logs.
 
+For help using this image, see: [Deployment via Docker](http://commonjava.github.io/aprox/user/docker.html) in the AProx User's Guide. 
+
 ## Volume Mounts
 
 The following volumes can be mounted from outside (like from the aprox-volumes image) to provide persistent storage:

@@ -213,4 +213,4 @@ else:
     runIn("git pull", APROX_ETC, "Failed to pull updates to etc git repository.")
 
 
-run("%s -p 8081 %s" % (os.path.join(APROX_DIR, 'bin', 'aprox.sh'), opts), fail=False)
+run("%s %s" % (os.path.join(APROX_DIR, 'bin', 'aprox.sh'), opts), fail=False)
