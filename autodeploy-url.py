@@ -39,7 +39,7 @@ class Metadata(object):
   def getLatestSnapshot(self):
     timestamp = None
     build = None
-    if self.xml.versioning["snapshot"] and len(self.xml.versioning.snapshot) and self.xml.versioning.snapshot.getchildren() and len(self.xml.versioning.snapshot.getchildren()):
+    if self.xml.versioning["snapshot"] is not None and len(self.xml.versioning.snapshot) > 0 and self.xml.versioning.snapshot.getchildren() and len(self.xml.versioning.snapshot.getchildren()):
       if self.verbose is True:
         print(lxml.objectify.dump(self.xml.versioning.snapshot))
       
