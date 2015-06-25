@@ -26,7 +26,7 @@
   
   <groupId>org.commonjava.aprox.docker</groupId>
   <artifactId>aprox-docker-utils</artifactId>
-  <version>0.22.0-2-SNAPSHOT</version>
+  <version>0.19.2-4-SNAPSHOT</version>
   <packaging>pom</packaging>
   
   <inceptionYear>2015</inceptionYear>
