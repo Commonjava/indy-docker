@@ -30,13 +30,14 @@
   <packaging>pom</packaging>
   
   <inceptionYear>2015</inceptionYear>
+  <url>https://github.com/Commonjava/aprox-docker</url>
 
   <name>AProx :: Docker Utilities</name>
   
   <scm>
-    <connection>scm:git:https://github.com/jdcasey/aprox-docker.git</connection>
-    <developerConnection>scm:git:git@github.com:jdcasey/aprox-docker.git</developerConnection>
-    <url>https://github.com/jdcasey/aprox-docker</url>
+    <connection>scm:git:https://github.com/Commmonjava/aprox-docker.git</connection>
+    <developerConnection>scm:git:git@github.com:Commonjava/aprox-docker.git</developerConnection>
+    <url>https://github.com/Commonjava/aprox-docker</url>
     <tag>HEAD</tag>
   </scm>
   
