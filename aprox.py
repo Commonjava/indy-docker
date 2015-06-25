@@ -17,7 +17,7 @@
 import os
 import re
 
-VERSION='0.19.2'
+VERSION='0.22.0'
 FLAVOR='savant'
 PORT=8080
 PROXY_PORT=8081
