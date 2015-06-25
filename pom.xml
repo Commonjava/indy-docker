@@ -26,7 +26,7 @@
   
   <groupId>org.commonjava.aprox.docker</groupId>
   <artifactId>aprox-docker-utils</artifactId>
-  <version>0.19.2-4-SNAPSHOT</version>
+  <version>0.22.0-1</version>
   <packaging>pom</packaging>
   
   <inceptionYear>2015</inceptionYear>
@@ -37,7 +37,7 @@
     <connection>scm:git:https://github.com/jdcasey/aprox-docker.git</connection>
     <developerConnection>scm:git:git@github.com:jdcasey/aprox-docker.git</developerConnection>
     <url>https://github.com/jdcasey/aprox-docker</url>
-    <tag>HEAD</tag>
+    <tag>aprox-docker-utils-0.22.0-1</tag>
   </scm>
   
   <build>
