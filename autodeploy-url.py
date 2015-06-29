@@ -43,7 +43,7 @@ class Metadata(object):
       if self.verbose is True:
         print(lxml.objectify.dump(self.xml.versioning.snapshot))
       
-      timestamp = "{:.6f}".format(float(self.xml.versioning.snapshot.timestamp))
+      timestamp = "{ts:.6f}".format(ts=float(self.xml.versioning.snapshot.timestamp))
       build = self.xml.versioning.snapshot.buildNumber
       if self.verbose is True:
         print "Found timestamp: %s, build-number: %s" % (timestamp, build)
@@ -91,6 +91,7 @@ def parse():
   
   parser.add_option('-i', '--image', help='The image to use when deploying (default: builchimp/aprox)')
   parser.add_option('-n', '--name', help='The container name under which to deploy AProx volume container (default: aprox)')
+  parser.add_option('-N', '--noservice', action='store_true', help='Do not try to restart a systemd service')
   parser.add_option('-r', '--release', action='store_true', help='Treat the metadata as version metadata, not snapshot metadata')
   parser.add_option('-s', '--service', help='The systemd service to manage when redeploying (default: aprox-server)')
   parser.add_option('-S', '--unsafe-ssl', action='store_true', help='Disable verification of SSL certificate (DANGEROUS)')
@@ -146,7 +147,7 @@ def deploy(opts, init_cmd):
   name = opts.name or NAME
   image = opts.image or IMAGE
   
-  if opts.service and os.path.exists("/bin/systemctl"):
+  if opts.noservice is not True and opts.service and os.path.exists("/bin/systemctl"):
     if opts.verbose is True:
       print "Stopping service: %s" % opts.service
     run("systemctl stop %s" % opts.service)
@@ -161,8 +162,8 @@ def deploy(opts, init_cmd):
     print "Running init command: %s" % init_cmd
   run(init_cmd)
   
-  if opts.service and os.path.exists("/bin/systemctl"):
-    print "Startingservice: %s" % opts.service
+  if opts.noservice is not True and opts.service and os.path.exists("/bin/systemctl"):
+    print "Starting service: %s" % opts.service
     run("systemctl start %s" % opts.service)
 
 def do(opts, init_cmd_template):
