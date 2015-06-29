@@ -43,7 +43,7 @@ class Metadata(object):
       if self.verbose is True:
         print(lxml.objectify.dump(self.xml.versioning.snapshot))
       
-      timestamp = "{:.6f}".format(float(self.xml.versioning.snapshot.timestamp))
+      timestamp = "{ts:.6f}".format(ts=float(self.xml.versioning.snapshot.timestamp))
       build = self.xml.versioning.snapshot.buildNumber
       if self.verbose is True:
         print "Found timestamp: %s, build-number: %s" % (timestamp, build)
