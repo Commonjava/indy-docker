@@ -47,6 +47,7 @@ def parse():
   parser.add_option('-i', '--image', help='The image to use when deploying (default: builchimp/aprox)')
   parser.add_option('-n', '--name', help='The container name under which to deploy AProx volume container (default: aprox)')
   parser.add_option('-s', '--service', help='The systemd service to manage when redeploying (default: aprox-server)')
+  parser.add_option('-N', '--noservice', action='store_true', help='Do not try to restart a systemd service')
   
   opts, args = parser.parse_args()
   
@@ -67,7 +68,7 @@ def deploy(watch_file, watchdir, devdir, opts, init_cmd):
   name = opts.name or NAME
   image = opts.image or IMAGE
   
-  if opts.service and os.path.exists("/bin/systemctl"):
+  if opts.noservice is not True and opts.service and os.path.exists("/bin/systemctl"):
     print "Stopping service: %s" % opts.service
     run("systemctl stop %s" % opts.service)
   
@@ -79,8 +80,8 @@ def deploy(watch_file, watchdir, devdir, opts, init_cmd):
   print "Running init command: %s" % init_cmd
   run(init_cmd)
   
-  if opts.service and os.path.exists("/bin/systemctl"):
-    print "Startingservice: %s" % opts.service
+  if opts.noservice is not True and opts.service and os.path.exists("/bin/systemctl"):
+    print "Starting service: %s" % opts.service
     run("systemctl start %s" % opts.service)
 
 
