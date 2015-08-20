@@ -19,10 +19,14 @@ FROM centos
 MAINTAINER John Casey <jdcasey@commonjava.org>
 
 RUN yum -y update
+RUN yum -y install openssh-server openssh-clients
 
 VOLUME /var/lib/aprox/storage /var/lib/aprox/data /var/log/aprox /etc/aprox
 
-ADD start-volumes /usr/local/bin/start-volumes
-RUN chmod +x /usr/local/bin/start-volumes
+#ADD start-volumes /usr/local/bin/start-volumes
+#RUN chmod +x /usr/local/bin/start-volumes
 
-CMD "/usr/local/bin/start-volumes.py"
+#CMD "/usr/local/bin/start-volumes.py"
+
+EXPOSE 22
+CMD ["/usr/bin/sshd", "-D"]
