@@ -22,6 +22,8 @@ RUN yum -y update
 
 VOLUME /var/lib/aprox/storage /var/lib/aprox/data /var/log/aprox /etc/aprox
 
+RUN yum -y install openssh-server openssh-clients
+
 #ADD start-volumes /usr/local/bin/start-volumes
 #RUN chmod +x /usr/local/bin/start-volumes
 
