@@ -19,7 +19,7 @@ FROM centos
 MAINTAINER John Casey <jdcasey@commonjava.org>
 
 RUN yum -y update
-RUN yum -y install openssh-server openssh-clients
+RUN yum -y install openssh-server openssh-clients rsync
 
 VOLUME /var/lib/aprox/storage /var/lib/aprox/data /var/log/aprox /etc/aprox
 
