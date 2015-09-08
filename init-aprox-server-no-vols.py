@@ -40,6 +40,7 @@ def parse():
   
   parser.add_option('-d', '--devdir', help='Directory to mount for devmode deployment (default: disabled, to use released version from URL)')
   parser.add_option('-D', '--debug-port', help="Port on which AProx JPDA connector should listen (default: disabled)")
+  parser.add_option('-e', '--env', help="Set an environment variable in the running container", action="append")
   parser.add_option('-E', '--etc-url', help='URL from which to git-clone the etc/aprox directory (default: disabled)')
   parser.add_option('-F', '--flavor', help="The flavor of AProx binary to deploy (default: %s)" % FLAVOR)
   parser.add_option('-i', '--image', help="The image to use when deploying (default: %s)" % SERVER_IMAGE)
@@ -51,6 +52,7 @@ def parse():
   parser.add_option('-U', '--url', help="URL from which to download AProx (default is calculated, using '%s' flavor)" % FLAVOR)
   parser.add_option('-V', '--version', help="The version of AProx to deploy (default: %s)" % VERSION)
   
+  parser.add_option('--dns', help="Pass in a DNS server to the running container", action="append")
   parser.add_option('--config', help="Volume mount for 'etc/aprox' configuration directory")
   parser.add_option('--data', help="Volume mount for state data files")
   parser.add_option('--logs', help="Volume mount for logs")
@@ -72,6 +74,15 @@ def do(opts, args):
   
   url=opts.url or URL_TEMPLATE.format(flavor=(opts.flavor or FLAVOR), version=(opts.version or VERSION))
   cmd_opts.append("-e APROX_BINARY_URL=%s" % url)
+
+  if opts.env:
+    for envar in opts.env:
+      cmd_opts.append( "-e %s" % envar)
+
+  if opts.dns:
+    for dnsserver in opts.dns:
+      cmd_opts.append( "--dns=%s" % dnsserver)
+  
   cmd_opts.append("-p %s:%s" % (opts.port or PORT, PORT))
   
   if opts.proxy_port:
