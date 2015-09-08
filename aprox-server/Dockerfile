@@ -19,7 +19,7 @@ FROM centos
 MAINTAINER John Casey <jdcasey@commonjava.org>
 
 RUN yum -y update
-RUN yum -y install wget git tar which curl tree java-1.7.0-openjdk-devel
+RUN yum -y install wget git tar which curl tree java-1.8.0-openjdk-devel
 
 VOLUME /var/lib/aprox/storage /var/lib/aprox/data /var/log/aprox /etc/aprox /tmp/aprox /tmp/ssh-config
 
