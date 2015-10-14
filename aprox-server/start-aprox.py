@@ -153,7 +153,7 @@ opts = os.environ.get(APROX_OPTS_ENVAR) or ''
 
 print "Read environment:\n  devmode: %s\n  aprox version: %s\n  aprox flavor: %s\n  aprox binary URL: %s\n  aprox etc Git URL: %s\n  aprox cli opts: %s" % (devmode, version, flavor, aproxBinaryUrl, aproxEtcUrl, opts)
 
-if not os.path.isdir('/root/.ssh') and os.path.isdir(SSH_CONFIG_VOL) and len(os.listdir(SSH_CONFIG_VOL)) > 0:
+if os.path.isdir(SSH_CONFIG_VOL) and len(os.listdir(SSH_CONFIG_VOL)) > 0:
   print "Importing SSH configurations from volume: %s" % SSH_CONFIG_VOL
   run("cp -vrf %s /root/.ssh" % SSH_CONFIG_VOL)
   run("chmod -v 700 /root/.ssh", fail=False)
