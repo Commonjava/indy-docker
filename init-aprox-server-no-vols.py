@@ -63,6 +63,8 @@ def parse():
   return (opts,args)
 
 def do(opts, args):
+  print "Starting with options:\n\n%s" % opts
+
   cmd_opts = []
   
   cmd_opts.append("--name=%s" % (opts.name or SERVER_NAME))
@@ -109,7 +111,7 @@ def do(opts, args):
   
   if opts.sshdir:
     chcon(opts.sshdir)
-    cmd_opts.append("-v %s:/tmp/ssh" % opts.sshdir)
+    cmd_opts.append("-v %s:/tmp/ssh-config" % opts.sshdir)
   
   if opts.devdir:
     found=False
