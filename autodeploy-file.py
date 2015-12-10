@@ -23,12 +23,12 @@ import re
 import shutil
 from optparse import (OptionParser,BadOptionError,AmbiguousOptionError)
 
-WATCH=os.path.join(os.environ.get("HOME"), "aprox-watched")
-DEV=os.path.join(os.environ.get("HOME"), "aprox-dev")
-NAME='aprox'
-IMAGE='buildchimp/aprox'
+WATCH=os.path.join(os.environ.get("HOME"), "indy-watched")
+DEV=os.path.join(os.environ.get("HOME"), "indy-dev")
+NAME='indy'
+IMAGE='buildchimp/indy'
 
-APROX_BINARY_RE = re.compile('aprox-launcher-.+-launcher.tar.gz')
+APROX_BINARY_RE = re.compile('indy-launcher-.+-launcher.tar.gz')
 
 def run(cmd, fail=True):
   print cmd
@@ -43,10 +43,10 @@ def parse():
   parser.disable_interspersed_args()
   
   parser.add_option('-w', '--watchdir', help='Directory to watch for updated files')
-  parser.add_option('-d', '--devdir', help='Directory to copy AProx tarballs to for deployment')
-  parser.add_option('-i', '--image', help='The image to use when deploying (default: builchimp/aprox)')
-  parser.add_option('-n', '--name', help='The container name under which to deploy AProx volume container (default: aprox)')
-  parser.add_option('-s', '--service', help='The systemd service to manage when redeploying (default: aprox-server)')
+  parser.add_option('-d', '--devdir', help='Directory to copy Indy tarballs to for deployment')
+  parser.add_option('-i', '--image', help='The image to use when deploying (default: builchimp/indy)')
+  parser.add_option('-n', '--name', help='The container name under which to deploy Indy volume container (default: indy)')
+  parser.add_option('-s', '--service', help='The systemd service to manage when redeploying (default: indy-server)')
   parser.add_option('-N', '--noservice', action='store_true', help='Do not try to restart a systemd service')
   
   opts, args = parser.parse_args()

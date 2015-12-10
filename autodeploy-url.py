@@ -27,8 +27,8 @@ import re
 import shutil
 from optparse import (OptionParser,BadOptionError,AmbiguousOptionError)
 
-NAME='aprox'
-IMAGE='buildchimp/aprox'
+NAME='indy'
+IMAGE='buildchimp/indy'
 VERSIONFILE=os.path.join(os.environ.get('HOME'), '.autodeploy.last')
 
 class Metadata(object):
@@ -89,15 +89,15 @@ def parse():
   parser = OptionParser(usage=usage)
   parser.disable_interspersed_args()
   
-  parser.add_option('-i', '--image', help='The image to use when deploying (default: builchimp/aprox)')
-  parser.add_option('-n', '--name', help='The container name under which to deploy AProx volume container (default: aprox)')
+  parser.add_option('-i', '--image', help='The image to use when deploying (default: builchimp/indy)')
+  parser.add_option('-n', '--name', help='The container name under which to deploy Indy volume container (default: indy)')
   parser.add_option('-N', '--noservice', action='store_true', help='Do not try to restart a systemd service')
   parser.add_option('-r', '--release', action='store_true', help='Treat the metadata as version metadata, not snapshot metadata')
-  parser.add_option('-s', '--service', help='The systemd service to manage when redeploying (default: aprox-server)')
+  parser.add_option('-s', '--service', help='The systemd service to manage when redeploying (default: indy-server)')
   parser.add_option('-S', '--unsafe-ssl', action='store_true', help='Disable verification of SSL certificate (DANGEROUS)')
   parser.add_option('-u', '--url', help='URL to maven-metadata.xml to watch for updates')
   parser.add_option('-v', '--verbose', action='store_true', help='Turn on verbose feedback')
-  parser.add_option('-V', '--versionfile', help='File to track the last deployed version of AProx')
+  parser.add_option('-V', '--versionfile', help='File to track the last deployed version of Indy')
   
   opts, args = parser.parse_args()
   

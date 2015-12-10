@@ -31,7 +31,7 @@
       <directoryMode>775</directoryMode>
       <includes>
         <include>*</include>
-        <include>aprox-*/**/*</include>
+        <include>indy-*/**/*</include>
         <include>systemd/**/*</include>
         <include>utils/**/*</include>
       </includes>

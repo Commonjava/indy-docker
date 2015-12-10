@@ -1,3 +1,4 @@
+#!/usr/bin/python
 #
 # Copyright (C) 2015 John Casey (jdcasey@commonjava.org)
 #
@@ -14,23 +15,9 @@
 # limitations under the License.
 #
 
-import os
-import re
 
-VERSION='0.22.0'
-FLAVOR='savant'
-PORT=8080
-PROXY_PORT=8081
-DEBUG_PORT=8000
-URL_TEMPLATE="http://repo.maven.apache.org/maven2/org/commonjava/aprox/launch/aprox-launcher-{flavor}/{version}/aprox-launcher-{flavor}-{version}-launcher.tar.gz"
+import time
 
-SERVER_NAME='aprox'
-SERVER_IMAGE='buildchimp/aprox'
-
-VOLS_NAME='aprox-volumes'
-VOLS_IMAGE='buildchimp/aprox-volumes'
-
-APROX_BINARY_RE = re.compile('aprox-launcher-.+-launcher.tar.gz')
-
-SSHDIR=os.path.join(os.environ.get('HOME'), '.ssh')
-
+print "Ready to serve Indy volume data."
+while True:
+  time.sleep(1)

@@ -15,18 +15,18 @@
 #
 
 # 1. Put in /etc/systemd/system/
-# 2. Execute `systemctl enable aprox-server` to install
+# 2. Execute `systemctl enable indy-server` to install
 
 [Unit]
-Description=AProx Server Container
-Requires=aprox-volumes.service
-After=aprox-volumes.service
+Description=Indy Server Container
+Requires=indy-volumes.service
+After=indy-volumes.service
 
 [Service]
 Restart=always
 RestartSec=10
-ExecStart=/usr/bin/docker start -a aprox
-ExecStop=/usr/bin/docker stop -t 2 aprox
+ExecStart=/usr/bin/docker start -a indy
+ExecStop=/usr/bin/docker stop -t 2 indy
 
 [Install]
 WantedBy=multi-user.target

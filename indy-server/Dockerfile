@@ -21,13 +21,13 @@ MAINTAINER John Casey <jdcasey@commonjava.org>
 RUN yum -y update
 RUN yum -y install wget git tar which curl tree java-1.8.0-openjdk-devel
 
-VOLUME /var/lib/aprox/storage /var/lib/aprox/data /var/log/aprox /etc/aprox /tmp/aprox /tmp/ssh-config
+VOLUME /var/lib/indy/storage /var/lib/indy/data /var/log/indy /etc/indy /tmp/indy /tmp/ssh-config
 
 EXPOSE 8080
 EXPOSE 8081
 EXPOSE 8000
 
-ADD start-aprox.py /usr/local/bin/start-aprox.py
-RUN chmod +x /usr/local/bin/start-aprox.py
+ADD start-indy.py /usr/local/bin/start-indy.py
+RUN chmod +x /usr/local/bin/start-indy.py
 
-CMD "/usr/local/bin/start-aprox.py"
+CMD "/usr/local/bin/start-indy.py"
