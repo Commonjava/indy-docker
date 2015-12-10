@@ -20,7 +20,7 @@ import os
 import sys
 import re
 from optparse import (OptionParser,BadOptionError,AmbiguousOptionError)
-from aprox import *
+from indy import *
 
 def run(cmd, fail=True):
   print cmd
@@ -34,40 +34,35 @@ def chcon(dir):
 
 def parse():
   usage = """%prog [options]
-%prog [options] - [aprox options]"""
+%prog [options] - [indy options]"""
   parser = OptionParser(usage=usage)
   parser.disable_interspersed_args()
   
   parser.add_option('-d', '--devdir', help='Directory to mount for devmode deployment (default: disabled, to use released version from URL)')
-  parser.add_option('-D', '--debug-port', help="Port on which AProx JPDA connector should listen (default: disabled)")
-  parser.add_option('-e', '--env', help="Set an environment variable in the running container", action="append")
-  parser.add_option('-E', '--etc-url', help='URL from which to git-clone the etc/aprox directory (default: disabled)')
-  parser.add_option('-F', '--flavor', help="The flavor of AProx binary to deploy (default: %s)" % FLAVOR)
-  parser.add_option('-i', '--image', help="The image to use when deploying (default: %s)" % SERVER_IMAGE)
-  parser.add_option('-n', '--name', help="The container name under which to deploy AProx (default: %s)" % SERVER_NAME)
-  parser.add_option('-p', '--port', help="Port on which AProx should listen (default: %s)" % PORT)
-  parser.add_option('-P', '--proxy-port', help="Port on which AProx's httprox add-on should listen (default: disabled)")
-  parser.add_option('-q', '--quiet', action='store_false', help="Don't start with TTY")
-  parser.add_option('-S', '--sshdir', help='Directory to mount for use as .ssh directory by AProx (default: disabled)')
-  parser.add_option('-U', '--url', help="URL from which to download AProx (default is calculated, using '%s' flavor)" % FLAVOR)
-  parser.add_option('-V', '--version', help="The version of AProx to deploy (default: %s)" % VERSION)
-  
   parser.add_option('--dns', help="Pass in a DNS server to the running container", action="append")
-  parser.add_option('--config', help="Volume mount for 'etc/aprox' configuration directory")
-  parser.add_option('--data', help="Volume mount for state data files")
-  parser.add_option('--logs', help="Volume mount for logs")
-  parser.add_option('--storage', help="Volume mount for artifact storage")
+  parser.add_option('-D', '--debug-port', help="Port on which Indy JPDA connector should listen (default: disabled)")
+  parser.add_option('-e', '--env', help="Set an environment variable in the running container", action="append")
+  parser.add_option('-E', '--etc-url', help='URL from which to git-clone the etc/indy directory (default: disabled)')
+  parser.add_option('-F', '--flavor', help="The flavor of Indy binary to deploy (default: %s)" % FLAVOR)
+  parser.add_option('-i', '--image', help="The image to use when deploying (default: %s)" % SERVER_IMAGE)
+  parser.add_option('-n', '--name', help="The container name under which to deploy Indy (default: %s)" % SERVER_NAME)
+  parser.add_option('-p', '--port', help="Port on which Indy should listen (default: %s)" % PORT)
+  parser.add_option('-P', '--proxy-port', help="Port on which Indy's httprox add-on should listen (default: disabled)")
+  parser.add_option('-q', '--quiet', action='store_false', help="Don't start with TTY")
+  parser.add_option('-S', '--sshdir', help='Directory to mount for use as .ssh directory by Indy (default: disabled)')
+  parser.add_option('-U', '--url', help="URL from which to download Indy (default is calculated, using '%s' flavor)" % FLAVOR)
+  parser.add_option('-v', '--vols', help="Docker container name from which to mount volumes (default: %s)" % VOLS_NAME)
+  parser.add_option('-V', '--version', help="The version of Indy to deploy (default: %s)" % VERSION)
   
   opts, args = parser.parse_args()
   
   return (opts,args)
 
 def do(opts, args):
-  print "Starting with options:\n\n%s" % opts
-
   cmd_opts = []
   
   cmd_opts.append("--name=%s" % (opts.name or SERVER_NAME))
+  cmd_opts.append("--volumes-from=%s" % (opts.vols or VOLS_NAME))
   
   if opts.quiet is False:
     cmd_opts.append("-d")
@@ -76,7 +71,7 @@ def do(opts, args):
   
   url=opts.url or URL_TEMPLATE.format(flavor=(opts.flavor or FLAVOR), version=(opts.version or VERSION))
   cmd_opts.append("-e APROX_BINARY_URL=%s" % url)
-
+  
   if opts.env:
     for envar in opts.env:
       cmd_opts.append( "-e %s" % envar)
@@ -92,22 +87,6 @@ def do(opts, args):
   
   if opts.debug_port:
     cmd_opts.append("-p %s:%s" % (opts.debug_port, DEBUG_PORT))
-  
-  if opts.config:
-    chcon(opts.config)
-    cmd_opts.append("-v %s:/etc/aprox" % opts.config)
-  
-  if opts.data:
-    chcon(opts.data)
-    cmd_opts.append("-v %s:/var/lib/aprox/data" % opts.data)
-  
-  if opts.logs:
-    chcon(opts.logs)
-    cmd_opts.append("-v %s:/var/log/aprox" % opts.logs)
-  
-  if opts.storage:
-    chcon(opts.storage)
-    cmd_opts.append("-v %s:/var/lib/aprox/storage" % opts.storage)
   
   if opts.sshdir:
     chcon(opts.sshdir)
@@ -126,7 +105,7 @@ def do(opts, args):
     
     chcon(opts.devdir)
     cmd_opts.append("-e APROX_DEV=true")
-    cmd_opts.append("-v %s:/tmp/aprox" % opts.devdir)
+    cmd_opts.append("-v %s:/tmp/indy" % opts.devdir)
   
   if opts.etc_url:
     cmd_opts.append("-e APROX_ETC_URL=%s" % opts.etc_url)

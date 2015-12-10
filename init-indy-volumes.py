@@ -19,7 +19,7 @@
 import os
 import sys
 from optparse import OptionParser
-from aprox import *
+from indy import *
 
 def run(cmd, fail=True):
   print cmd
@@ -34,7 +34,7 @@ def parse():
   parser.disable_interspersed_args()
   
   parser.add_option('-i', '--image', help="The image to use when deploying (default: %s)" % VOLS_IMAGE)
-  parser.add_option('-n', '--name', help="The container name under which to deploy AProx volume container (default: %s)" % VOLS_NAME)
+  parser.add_option('-n', '--name', help="The container name under which to deploy Indy volume container (default: %s)" % VOLS_NAME)
   
   opts, args = parser.parse_args()
   

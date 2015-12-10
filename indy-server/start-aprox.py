@@ -95,9 +95,9 @@ def move_and_link(src, target, replaceIfExists=False):
 
 
 # Envar for reading development binary volume mount point
-APROX_DEV_VOL = '/tmp/aprox'
+APROX_DEV_VOL = '/tmp/indy'
 SSH_CONFIG_VOL = '/tmp/ssh-config'
-APROX_DEV_BINARIES_PATTERN='aprox*-launcher.tar.gz'
+APROX_DEV_BINARIES_PATTERN='indy*-launcher.tar.gz'
 
 
 # Envars that can be set using -e from 'docker run' command.
@@ -112,46 +112,46 @@ APROX_DEVMODE_ENVAR = 'APROX_DEV'
 # Defaults
 DEF_APROX_FLAVOR='savant'
 
-DEF_APROX_BINARY_URL_FORMAT = 'http://repo.maven.apache.org/maven2/org/commonjava/aprox/launch/aprox-launcher-{flavor}/{version}/aprox-launcher-{flavor}-{version}-launcher.tar.gz'
+DEF_APROX_BINARY_URL_FORMAT = 'http://repo.maven.apache.org/maven2/org/commonjava/indy/launch/indy-launcher-{flavor}/{version}/indy-launcher-{flavor}-{version}-launcher.tar.gz'
 
 
-# locations for expanded aprox binary
-APROX_DIR = '/opt/aprox'
+# locations for expanded indy binary
+APROX_DIR = '/opt/indy'
 BOOT_PROPS = 'boot.properties'
 APROX_BIN = os.path.join(APROX_DIR, 'bin')
-APROX_ETC = os.path.join(APROX_DIR, 'etc/aprox')
-APROX_STORAGE = os.path.join(APROX_DIR, 'var/lib/aprox/storage')
-APROX_DATA = os.path.join(APROX_DIR, 'var/lib/aprox/data')
-APROX_LOGS = os.path.join(APROX_DIR, 'var/log/aprox')
+APROX_ETC = os.path.join(APROX_DIR, 'etc/indy')
+APROX_STORAGE = os.path.join(APROX_DIR, 'var/lib/indy/storage')
+APROX_DATA = os.path.join(APROX_DIR, 'var/lib/indy/data')
+APROX_LOGS = os.path.join(APROX_DIR, 'var/log/indy')
 
 
 # locations on global fs
-ETC_APROX = '/etc/aprox'
-VAR_APROX = '/var/lib/aprox'
+ETC_APROX = '/etc/indy'
+VAR_APROX = '/var/lib/indy'
 VAR_STORAGE = os.path.join(VAR_APROX, 'storage')
 VAR_DATA = os.path.join(VAR_APROX, 'data')
-LOGS = '/var/log/aprox'
+LOGS = '/var/log/indy'
 
 
-# if true, attempt to use aprox distro tarball or directory from attached volume
+# if true, attempt to use indy distro tarball or directory from attached volume
 devmode = os.environ.get(APROX_DEVMODE_ENVAR)
 
-# aprox release to use
+# indy release to use
 version=os.environ.get(APROX_VERSION_ENVAR)
 
 # currently one of: rest-min, easyprox, savant
 flavor=os.environ.get(APROX_FLAVOR_ENVAR) or DEF_APROX_FLAVOR
 
-# URL for aprox distro tarball to download and expand
-aproxBinaryUrl = os.environ.get(APROX_URL_ENVAR) or DEF_APROX_BINARY_URL_FORMAT.format(version=version, flavor=flavor)
+# URL for indy distro tarball to download and expand
+indyBinaryUrl = os.environ.get(APROX_URL_ENVAR) or DEF_APROX_BINARY_URL_FORMAT.format(version=version, flavor=flavor)
 
-# Git location supplying /opt/aprox/etc/aprox
-aproxEtcUrl = os.environ.get(APROX_ETC_URL_ENVAR)
+# Git location supplying /opt/indy/etc/indy
+indyEtcUrl = os.environ.get(APROX_ETC_URL_ENVAR)
 
-# command-line options for aprox
+# command-line options for indy
 opts = os.environ.get(APROX_OPTS_ENVAR) or ''
 
-print "Read environment:\n  devmode: %s\n  aprox version: %s\n  aprox flavor: %s\n  aprox binary URL: %s\n  aprox etc Git URL: %s\n  aprox cli opts: %s" % (devmode, version, flavor, aproxBinaryUrl, aproxEtcUrl, opts)
+print "Read environment:\n  devmode: %s\n  indy version: %s\n  indy flavor: %s\n  indy binary URL: %s\n  indy etc Git URL: %s\n  indy cli opts: %s" % (devmode, version, flavor, indyBinaryUrl, indyEtcUrl, opts)
 
 if os.path.isdir(SSH_CONFIG_VOL) and len(os.listdir(SSH_CONFIG_VOL)) > 0:
   print "Importing SSH configurations from volume: %s" % SSH_CONFIG_VOL
@@ -170,31 +170,31 @@ if os.path.isdir(APROX_DIR) is False:
     for file in os.listdir(APROX_DEV_VOL):
       if fnmatch.fnmatch(file, APROX_DEV_BINARIES_PATTERN):
         devTarball = os.path.join(APROX_DEV_VOL, file)
-        print "Unpacking development binary of AProx: %s" % devTarball
+        print "Unpacking development binary of Indy: %s" % devTarball
         run('tar -zxvf %s -C /opt' % devTarball)
         unpacked=True
         break
     if unpacked is False:
-      if not os.path.exists(os.path.join(APROX_DEV_VOL, 'bin/aprox.sh')):
-        print "Development volume %s exists but doesn't appear to contain expanded AProx (can't find 'bin/aprox.sh'). Ignoring." % APROX_DEV_VOL
+      if not os.path.exists(os.path.join(APROX_DEV_VOL, 'bin/indy.sh')):
+        print "Development volume %s exists but doesn't appear to contain expanded Indy (can't find 'bin/indy.sh'). Ignoring." % APROX_DEV_VOL
       else:
-        print "Using expanded AProx deployment, in development volume: %s" % APROX_DEV_VOL
+        print "Using expanded Indy deployment, in development volume: %s" % APROX_DEV_VOL
         shutil.copytree(APROX_DEV_VOL, APROX_DIR)
   else:
-      print 'Downloading: %s' % aproxBinaryUrl
+      print 'Downloading: %s' % indyBinaryUrl
       
-      download = urlopen(aproxBinaryUrl)
-      with open('/tmp/aprox.tar.gz', 'wb') as f:
+      download = urlopen(indyBinaryUrl)
+      with open('/tmp/indy.tar.gz', 'wb') as f:
         f.write(download.read())
       run('ls -alh /tmp/')
-      run('tar -zxvf /tmp/aprox.tar.gz -C /opt')
-    #  with tarfile.open('/tmp/aprox.tar.gz') as tar:
+      run('tar -zxvf /tmp/indy.tar.gz -C /opt')
+    #  with tarfile.open('/tmp/indy.tar.gz') as tar:
     #    tar.extractall(parentDir)
     
-  if aproxEtcUrl is not None:
-    print "Cloning: %s" % aproxEtcUrl
+  if indyEtcUrl is not None:
+    print "Cloning: %s" % indyEtcUrl
     shutil.rmtree(APROX_ETC)
-    run("git clone --verbose --progress %s %s 2>&1" % (aproxEtcUrl, APROX_ETC), "Failed to checkout aprox/etc from: %s" % aproxEtcUrl)
+    run("git clone --verbose --progress %s %s 2>&1" % (indyEtcUrl, APROX_ETC), "Failed to checkout indy/etc from: %s" % indyEtcUrl)
   
   move_and_link(APROX_ETC, ETC_APROX, replaceIfExists=True)
   move_and_link(APROX_STORAGE, VAR_STORAGE)
@@ -209,8 +209,8 @@ if os.path.isdir(APROX_DIR) is False:
     os.symlink(binBootOpts, etcBootOpts)
 else:
   if os.path.isdir(os.path.join(APROX_ETC, ".git")) is True:
-    print "Updating aprox etc/ git repository..."
+    print "Updating indy etc/ git repository..."
     runIn("git pull", APROX_ETC, "Failed to pull updates to etc git repository.")
 
 
-run("%s %s" % (os.path.join(APROX_DIR, 'bin', 'aprox.sh'), opts), fail=False)
+run("%s %s" % (os.path.join(APROX_DIR, 'bin', 'indy.sh'), opts), fail=False)

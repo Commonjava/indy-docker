@@ -21,7 +21,7 @@ MAINTAINER John Casey <jdcasey@commonjava.org>
 RUN yum -y update
 RUN yum -y install openssh-server openssh-clients rsync
 
-VOLUME /var/lib/aprox/storage /var/lib/aprox/data /var/log/aprox /etc/aprox
+VOLUME /var/lib/indy/storage /var/lib/indy/data /var/log/indy /etc/indy
 
 #ADD start-volumes /usr/local/bin/start-volumes
 #RUN chmod +x /usr/local/bin/start-volumes
