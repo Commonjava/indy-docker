@@ -75,7 +75,7 @@ def do(opts, args):
     cmd_opts.append("-t")
   
   url=opts.url or URL_TEMPLATE.format(flavor=(opts.flavor or FLAVOR), version=(opts.version or VERSION))
-  cmd_opts.append("-e APROX_BINARY_URL=%s" % url)
+  cmd_opts.append("-e INDY_BINARY_URL=%s" % url)
 
   if opts.env:
     for envar in opts.env:
@@ -116,7 +116,7 @@ def do(opts, args):
   if opts.devdir:
     found=False
     for file in os.listdir(opts.devdir):
-      if APROX_BINARY_RE.match(file):
+      if INDY_BINARY_RE.match(file):
         found=True
         break
     
@@ -125,14 +125,14 @@ def do(opts, args):
       sys.exit(1)
     
     chcon(opts.devdir)
-    cmd_opts.append("-e APROX_DEV=true")
+    cmd_opts.append("-e INDY_DEV=true")
     cmd_opts.append("-v %s:/tmp/indy" % opts.devdir)
   
   if opts.etc_url:
-    cmd_opts.append("-e APROX_ETC_URL=%s" % opts.etc_url)
+    cmd_opts.append("-e INDY_ETC_URL=%s" % opts.etc_url)
   
   if len(args) > 0:
-    cmd_opts.append("-e APROX_OPTS='%s'" % " ".join(args))
+    cmd_opts.append("-e INDY_OPTS='%s'" % " ".join(args))
   
   cmd_opts.append(opts.image or SERVER_IMAGE)
 

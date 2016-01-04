@@ -28,7 +28,7 @@ DEV=os.path.join(os.environ.get("HOME"), "indy-dev")
 NAME='indy'
 IMAGE='buildchimp/indy'
 
-APROX_BINARY_RE = re.compile('indy-launcher-.+-launcher.tar.gz')
+INDY_BINARY_RE = re.compile('indy-launcher-.+-launcher.tar.gz')
 
 def run(cmd, fail=True):
   print cmd
@@ -94,7 +94,7 @@ def do(opts, init_cmd):
   if len(files) > 0:
     files.sort(key=lambda x: os.stat(os.path.join(watch, x)).st_mtime, reverse=True)
     for file in files:
-      if APROX_BINARY_RE.match(file):
+      if INDY_BINARY_RE.match(file):
         watch_file = file
         break
   
@@ -107,7 +107,7 @@ def do(opts, init_cmd):
   if len(files) > 0:
     files.sort(key=lambda x: os.stat(os.path.join(dev, x)).st_mtime, reverse=True)
     for file in files:
-      if APROX_BINARY_RE.match(file):
+      if INDY_BINARY_RE.match(file):
         dev_file = file
         break
   

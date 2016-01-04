@@ -39,8 +39,8 @@ to turn it into a really functional script:
     #Or, if you want, you can leave off the '-q' option and watch the server come up
     #...then use CTL-C to exit the tty (the container will keep running)
     
-    cp systemd/indy-volumes.service systemd/indy-server.service /etc/systemd/system
-    systemctl enable indy-volumes indy-server
+    cp systemd/indy-volumes.service systemd/indy.service /etc/systemd/system
+    systemctl enable indy-volumes indy
     
     docker stop indy indy-volumes
     systemctl start indy-volumes
