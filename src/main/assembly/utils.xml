@@ -33,7 +33,7 @@
         <include>*</include>
         <include>indy-*/**/*</include>
         <include>systemd/**/*</include>
-        <include>utils/**/*</include>
+        <include>scripts/**/*</include>
       </includes>
       <excludes>
         <exclude>pom.xml</exclude>
