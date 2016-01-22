@@ -71,7 +71,7 @@
                     <dockerFile>${project.basedir}/indy-volumes/Dockerfile</dockerFile>
                   </image>
                   <image>
-                    <id>indy-server</id>
+                    <id>indy</id>
                     <dockerFile>${project.basedir}/indy-server/Dockerfile</dockerFile>
                     <artifacts>
                       <artifact>
@@ -100,10 +100,10 @@
                     <push>true</push>
                   </image>
                   <image>
-                    <id>indy-server</id>
+                    <id>indy</id>
                     <tags>
-                      <tag>docker.io/${docker.userName}/indy-server:${docker.tag}</tag>
-                      <tag>docker.io/${docker.userName}/indy-server:${project.version}</tag>
+                      <tag>docker.io/${docker.userName}/indy:${docker.tag}</tag>
+                      <tag>docker.io/${docker.userName}/indy:${project.version}</tag>
                     </tags>
                     <push>true</push>
                   </image>
