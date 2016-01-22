@@ -39,7 +39,6 @@ def parse():
   parser.disable_interspersed_args()
   
   parser.add_option('-d', '--devdir', help='Directory to mount for devmode deployment (default: disabled, to use released version from URL)')
-  parser.add_option('--dns', help="Pass in a DNS server to the running container", action="append")
   parser.add_option('-D', '--debug-port', help="Port on which Indy JPDA connector should listen (default: disabled)")
   parser.add_option('-e', '--env', help="Set an environment variable in the running container", action="append")
   parser.add_option('-E', '--etc-url', help='URL from which to git-clone the etc/indy directory (default: disabled)')
@@ -51,18 +50,24 @@ def parse():
   parser.add_option('-q', '--quiet', action='store_false', help="Don't start with TTY")
   parser.add_option('-S', '--sshdir', help='Directory to mount for use as .ssh directory by Indy (default: disabled)')
   parser.add_option('-U', '--url', help="URL from which to download Indy (default is calculated, using '%s' flavor)" % FLAVOR)
-  parser.add_option('-v', '--vols', help="Docker container name from which to mount volumes (default: %s)" % VOLS_NAME)
   parser.add_option('-V', '--version', help="The version of Indy to deploy (default: %s)" % VERSION)
+  
+  parser.add_option('--dns', help="Pass in a DNS server to the running container", action="append")
+  parser.add_option('--config', help="Volume mount for 'etc/indy' configuration directory")
+  parser.add_option('--data', help="Volume mount for state data files")
+  parser.add_option('--logs', help="Volume mount for logs")
+  parser.add_option('--storage', help="Volume mount for artifact storage")
   
   opts, args = parser.parse_args()
   
   return (opts,args)
 
 def do(opts, args):
+  print "Starting with options:\n\n%s" % opts
+
   cmd_opts = []
   
   cmd_opts.append("--name=%s" % (opts.name or SERVER_NAME))
-  cmd_opts.append("--volumes-from=%s" % (opts.vols or VOLS_NAME))
   
   if opts.quiet is False:
     cmd_opts.append("-d")
@@ -70,8 +75,8 @@ def do(opts, args):
     cmd_opts.append("-t")
   
   url=opts.url or URL_TEMPLATE.format(flavor=(opts.flavor or FLAVOR), version=(opts.version or VERSION))
-  cmd_opts.append("-e APROX_BINARY_URL=%s" % url)
-  
+  cmd_opts.append("-e INDY_BINARY_URL=%s" % url)
+
   if opts.env:
     for envar in opts.env:
       cmd_opts.append( "-e %s" % envar)
@@ -88,6 +93,22 @@ def do(opts, args):
   if opts.debug_port:
     cmd_opts.append("-p %s:%s" % (opts.debug_port, DEBUG_PORT))
   
+  if opts.config:
+    chcon(opts.config)
+    cmd_opts.append("-v %s:/etc/indy" % opts.config)
+  
+  if opts.data:
+    chcon(opts.data)
+    cmd_opts.append("-v %s:/var/lib/indy/data" % opts.data)
+  
+  if opts.logs:
+    chcon(opts.logs)
+    cmd_opts.append("-v %s:/var/log/indy" % opts.logs)
+  
+  if opts.storage:
+    chcon(opts.storage)
+    cmd_opts.append("-v %s:/var/lib/indy/storage" % opts.storage)
+  
   if opts.sshdir:
     chcon(opts.sshdir)
     cmd_opts.append("-v %s:/tmp/ssh-config" % opts.sshdir)
@@ -95,7 +116,7 @@ def do(opts, args):
   if opts.devdir:
     found=False
     for file in os.listdir(opts.devdir):
-      if APROX_BINARY_RE.match(file):
+      if INDY_BINARY_RE.match(file):
         found=True
         break
     
@@ -104,14 +125,14 @@ def do(opts, args):
       sys.exit(1)
     
     chcon(opts.devdir)
-    cmd_opts.append("-e APROX_DEV=true")
+    cmd_opts.append("-e INDY_DEV=true")
     cmd_opts.append("-v %s:/tmp/indy" % opts.devdir)
   
   if opts.etc_url:
-    cmd_opts.append("-e APROX_ETC_URL=%s" % opts.etc_url)
+    cmd_opts.append("-e INDY_ETC_URL=%s" % opts.etc_url)
   
   if len(args) > 0:
-    cmd_opts.append("-e APROX_OPTS='%s'" % " ".join(args))
+    cmd_opts.append("-e INDY_OPTS='%s'" % " ".join(args))
   
   cmd_opts.append(opts.image or SERVER_IMAGE)
 

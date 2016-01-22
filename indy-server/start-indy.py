@@ -95,61 +95,61 @@ def move_and_link(src, target, replaceIfExists=False):
 
 
 # Envar for reading development binary volume mount point
-APROX_DEV_VOL = '/tmp/indy'
+INDY_DEV_VOL = '/tmp/indy'
 SSH_CONFIG_VOL = '/tmp/ssh-config'
-APROX_DEV_BINARIES_PATTERN='indy*-launcher.tar.gz'
+INDY_DEV_BINARIES_PATTERN='indy*-launcher.tar.gz'
 
 
 # Envars that can be set using -e from 'docker run' command.
-APROX_VERSION_ENVAR='APROX_VERSION'
-APROX_FLAVOR_ENVAR='APROX_FLAVOR'
-APROX_URL_ENVAR = 'APROX_BINARY_URL'
-APROX_ETC_URL_ENVAR = 'APROX_ETC_URL'
-APROX_OPTS_ENVAR = 'APROX_OPTS'
-APROX_DEVMODE_ENVAR = 'APROX_DEV'
+INDY_VERSION_ENVAR='INDY_VERSION'
+INDY_FLAVOR_ENVAR='INDY_FLAVOR'
+INDY_URL_ENVAR = 'INDY_BINARY_URL'
+INDY_ETC_URL_ENVAR = 'INDY_ETC_URL'
+INDY_OPTS_ENVAR = 'INDY_OPTS'
+INDY_DEVMODE_ENVAR = 'INDY_DEV'
 
 
 # Defaults
-DEF_APROX_FLAVOR='savant'
+DEF_INDY_FLAVOR='savant'
 
-DEF_APROX_BINARY_URL_FORMAT = 'http://repo.maven.apache.org/maven2/org/commonjava/indy/launch/indy-launcher-{flavor}/{version}/indy-launcher-{flavor}-{version}-launcher.tar.gz'
+DEF_INDY_BINARY_URL_FORMAT = 'http://repo.maven.apache.org/maven2/org/commonjava/indy/launch/indy-launcher-{flavor}/{version}/indy-launcher-{flavor}-{version}-launcher.tar.gz'
 
 
 # locations for expanded indy binary
-APROX_DIR = '/opt/indy'
+INDY_DIR = '/opt/indy'
 BOOT_PROPS = 'boot.properties'
-APROX_BIN = os.path.join(APROX_DIR, 'bin')
-APROX_ETC = os.path.join(APROX_DIR, 'etc/indy')
-APROX_STORAGE = os.path.join(APROX_DIR, 'var/lib/indy/storage')
-APROX_DATA = os.path.join(APROX_DIR, 'var/lib/indy/data')
-APROX_LOGS = os.path.join(APROX_DIR, 'var/log/indy')
+INDY_BIN = os.path.join(INDY_DIR, 'bin')
+INDY_ETC = os.path.join(INDY_DIR, 'etc/indy')
+INDY_STORAGE = os.path.join(INDY_DIR, 'var/lib/indy/storage')
+INDY_DATA = os.path.join(INDY_DIR, 'var/lib/indy/data')
+INDY_LOGS = os.path.join(INDY_DIR, 'var/log/indy')
 
 
 # locations on global fs
-ETC_APROX = '/etc/indy'
-VAR_APROX = '/var/lib/indy'
-VAR_STORAGE = os.path.join(VAR_APROX, 'storage')
-VAR_DATA = os.path.join(VAR_APROX, 'data')
+ETC_INDY = '/etc/indy'
+VAR_INDY = '/var/lib/indy'
+VAR_STORAGE = os.path.join(VAR_INDY, 'storage')
+VAR_DATA = os.path.join(VAR_INDY, 'data')
 LOGS = '/var/log/indy'
 
 
 # if true, attempt to use indy distro tarball or directory from attached volume
-devmode = os.environ.get(APROX_DEVMODE_ENVAR)
+devmode = os.environ.get(INDY_DEVMODE_ENVAR)
 
 # indy release to use
-version=os.environ.get(APROX_VERSION_ENVAR)
+version=os.environ.get(INDY_VERSION_ENVAR)
 
 # currently one of: rest-min, easyprox, savant
-flavor=os.environ.get(APROX_FLAVOR_ENVAR) or DEF_APROX_FLAVOR
+flavor=os.environ.get(INDY_FLAVOR_ENVAR) or DEF_INDY_FLAVOR
 
 # URL for indy distro tarball to download and expand
-indyBinaryUrl = os.environ.get(APROX_URL_ENVAR) or DEF_APROX_BINARY_URL_FORMAT.format(version=version, flavor=flavor)
+indyBinaryUrl = os.environ.get(INDY_URL_ENVAR) or DEF_INDY_BINARY_URL_FORMAT.format(version=version, flavor=flavor)
 
 # Git location supplying /opt/indy/etc/indy
-indyEtcUrl = os.environ.get(APROX_ETC_URL_ENVAR)
+indyEtcUrl = os.environ.get(INDY_ETC_URL_ENVAR)
 
 # command-line options for indy
-opts = os.environ.get(APROX_OPTS_ENVAR) or ''
+opts = os.environ.get(INDY_OPTS_ENVAR) or ''
 
 print "Read environment:\n  devmode: %s\n  indy version: %s\n  indy flavor: %s\n  indy binary URL: %s\n  indy etc Git URL: %s\n  indy cli opts: %s" % (devmode, version, flavor, indyBinaryUrl, indyEtcUrl, opts)
 
@@ -160,26 +160,26 @@ if os.path.isdir(SSH_CONFIG_VOL) and len(os.listdir(SSH_CONFIG_VOL)) > 0:
   run("chmod -v 600 /root/.ssh/*", fail=False)
 
 
-if os.path.isdir(APROX_DIR) is False:
-  parentDir = os.path.dirname(APROX_DIR)
+if os.path.isdir(INDY_DIR) is False:
+  parentDir = os.path.dirname(INDY_DIR)
   if os.path.isdir(parentDir) is False:
     os.makedirs(parentDir)
   
   if devmode is not None:
     unpacked=False
-    for file in os.listdir(APROX_DEV_VOL):
-      if fnmatch.fnmatch(file, APROX_DEV_BINARIES_PATTERN):
-        devTarball = os.path.join(APROX_DEV_VOL, file)
+    for file in os.listdir(INDY_DEV_VOL):
+      if fnmatch.fnmatch(file, INDY_DEV_BINARIES_PATTERN):
+        devTarball = os.path.join(INDY_DEV_VOL, file)
         print "Unpacking development binary of Indy: %s" % devTarball
         run('tar -zxvf %s -C /opt' % devTarball)
         unpacked=True
         break
     if unpacked is False:
-      if not os.path.exists(os.path.join(APROX_DEV_VOL, 'bin/indy.sh')):
-        print "Development volume %s exists but doesn't appear to contain expanded Indy (can't find 'bin/indy.sh'). Ignoring." % APROX_DEV_VOL
+      if not os.path.exists(os.path.join(INDY_DEV_VOL, 'bin/indy.sh')):
+        print "Development volume %s exists but doesn't appear to contain expanded Indy (can't find 'bin/indy.sh'). Ignoring." % INDY_DEV_VOL
       else:
-        print "Using expanded Indy deployment, in development volume: %s" % APROX_DEV_VOL
-        shutil.copytree(APROX_DEV_VOL, APROX_DIR)
+        print "Using expanded Indy deployment, in development volume: %s" % INDY_DEV_VOL
+        shutil.copytree(INDY_DEV_VOL, INDY_DIR)
   else:
       print 'Downloading: %s' % indyBinaryUrl
       
@@ -193,24 +193,24 @@ if os.path.isdir(APROX_DIR) is False:
     
   if indyEtcUrl is not None:
     print "Cloning: %s" % indyEtcUrl
-    shutil.rmtree(APROX_ETC)
-    run("git clone --verbose --progress %s %s 2>&1" % (indyEtcUrl, APROX_ETC), "Failed to checkout indy/etc from: %s" % indyEtcUrl)
+    shutil.rmtree(INDY_ETC)
+    run("git clone --verbose --progress %s %s 2>&1" % (indyEtcUrl, INDY_ETC), "Failed to checkout indy/etc from: %s" % indyEtcUrl)
   
-  move_and_link(APROX_ETC, ETC_APROX, replaceIfExists=True)
-  move_and_link(APROX_STORAGE, VAR_STORAGE)
-  move_and_link(APROX_DATA, VAR_DATA)
-  move_and_link(APROX_LOGS, LOGS)
+  move_and_link(INDY_ETC, ETC_INDY, replaceIfExists=True)
+  move_and_link(INDY_STORAGE, VAR_STORAGE)
+  move_and_link(INDY_DATA, VAR_DATA)
+  move_and_link(INDY_LOGS, LOGS)
   
-  etcBootOpts = os.path.join(APROX_ETC, BOOT_PROPS)
+  etcBootOpts = os.path.join(INDY_ETC, BOOT_PROPS)
   if os.path.exists(etcBootOpts):
-    binBootOpts = os.path.join(APROX_BIN, BOOT_PROPS)
+    binBootOpts = os.path.join(INDY_BIN, BOOT_PROPS)
     if os.path.exists(binBootOpts):
       os.remove(binBootOpts)
     os.symlink(binBootOpts, etcBootOpts)
 else:
-  if os.path.isdir(os.path.join(APROX_ETC, ".git")) is True:
+  if os.path.isdir(os.path.join(INDY_ETC, ".git")) is True:
     print "Updating indy etc/ git repository..."
-    runIn("git pull", APROX_ETC, "Failed to pull updates to etc git repository.")
+    runIn("git pull", INDY_ETC, "Failed to pull updates to etc git repository.")
 
 
-run("%s %s" % (os.path.join(APROX_DIR, 'bin', 'indy.sh'), opts), fail=False)
+run("%s %s" % (os.path.join(INDY_DIR, 'bin', 'indy.sh'), opts), fail=False)

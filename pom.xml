@@ -21,12 +21,12 @@
   <parent>
     <groupId>org.commonjava</groupId>
     <artifactId>commonjava</artifactId>
-    <version>6</version>
+    <version>11</version>
   </parent>
   
   <groupId>org.commonjava.indy.docker</groupId>
   <artifactId>indy-docker-utils</artifactId>
-  <version>0.22.0-2-SNAPSHOT</version>
+  <version>1.0-1-SNAPSHOT</version>
   <packaging>pom</packaging>
   
   <inceptionYear>2015</inceptionYear>
@@ -40,10 +40,85 @@
     <url>https://github.com/Commonjava/indy-docker</url>
     <tag>HEAD</tag>
   </scm>
+
+  <properties>
+    <docker.tag>dev</docker.tag>
+    <dockerProvider>local</dockerProvider>
+  </properties>
   
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <!-- See: https://github.com/wouterd/docker-maven-plugin -->
+          <groupId>net.wouterdanes.docker</groupId>
+          <artifactId>docker-maven-plugin</artifactId>
+          <version>4.1.0</version>
+          <configuration>
+            <providerName>${dockerProvider}</providerName>
+          </configuration>
+          <executions>
+            <execution>
+              <id>build-images</id>
+              <goals>
+                <goal>build-images</goal>
+              </goals>
+              <phase>package</phase>
+              <configuration>
+                <images>
+                  <image>
+                    <id>indy-volumes</id>
+                    <dockerFile>${project.basedir}/indy-volumes/Dockerfile</dockerFile>
+                  </image>
+                  <image>
+                    <id>indy</id>
+                    <dockerFile>${project.basedir}/indy-server/Dockerfile</dockerFile>
+                    <artifacts>
+                      <artifact>
+                        <file>${project.basedir}/indy-server/start-indy.py</file>
+                        <dest>start-indy.py</dest>
+                      </artifact>
+                    </artifacts>
+                  </image>
+                </images>
+              </configuration>
+            </execution>
+            <execution>
+              <id>tag-images</id>
+              <goals>
+                <goal>tag-images</goal>
+              </goals>
+              <phase>install</phase>
+              <configuration>
+                <images>
+                  <image>
+                    <id>indy-volumes</id>
+                    <tags>
+                      <tag>docker.io/${docker.userName}/indy-volumes:${docker.tag}</tag>
+                      <tag>docker.io/${docker.userName}/indy-volumes:${project.version}</tag>
+                    </tags>
+                    <push>true</push>
+                  </image>
+                  <image>
+                    <id>indy</id>
+                    <tags>
+                      <tag>docker.io/${docker.userName}/indy:${docker.tag}</tag>
+                      <tag>docker.io/${docker.userName}/indy:${project.version}</tag>
+                    </tags>
+                    <push>true</push>
+                  </image>
+                </images>
+              </configuration>
+            </execution>
+            <execution>
+              <id>push-images</id>
+              <goals>
+                <goal>push-images</goal>
+              </goals>
+              <phase>deploy</phase>
+            </execution>
+          </executions>
+        </plugin>
         <plugin>
           <groupId>com.mycila</groupId>
           <artifactId>license-maven-plugin</artifactId>
@@ -92,4 +167,25 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <properties>
+        <docker.tag>latest</docker.tag>
+      </properties>
+    </profile>
+    <profile>
+      <id>with-images</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>net.wouterdanes.docker</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <version>4.1.0</version>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

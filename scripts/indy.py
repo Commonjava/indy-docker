@@ -17,7 +17,7 @@
 import os
 import re
 
-VERSION='0.22.0'
+VERSION='1.0'
 FLAVOR='savant'
 PORT=8080
 PROXY_PORT=8081
@@ -25,12 +25,12 @@ DEBUG_PORT=8000
 URL_TEMPLATE="http://repo.maven.apache.org/maven2/org/commonjava/indy/launch/indy-launcher-{flavor}/{version}/indy-launcher-{flavor}-{version}-launcher.tar.gz"
 
 SERVER_NAME='indy'
-SERVER_IMAGE='buildchimp/indy'
+SERVER_IMAGE='docker.io/commonjava/indy:latest'
 
 VOLS_NAME='indy-volumes'
-VOLS_IMAGE='buildchimp/indy-volumes'
+VOLS_IMAGE='docker.io/commonjava/indy-volumes:latest'
 
-APROX_BINARY_RE = re.compile('indy-launcher-.+-launcher.tar.gz')
+INDY_BINARY_RE = re.compile('indy-launcher-.+-launcher.tar.gz')
 
 SSHDIR=os.path.join(os.environ.get('HOME'), '.ssh')
 

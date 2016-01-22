@@ -8,7 +8,7 @@ This repository contains a set of init scripts for setting up indy docker contai
 
 You can run any of the above scripts with `-h` to see the available options.
 
-It also contains an autodeploy script (`autodeploy-indy-server`) that you can add to your cron jobs, 
+It also contains an autodeploy script (`./scripts/autodeploy-indy-server`) that you can add to your cron jobs, 
 to autodeploy an Indy tarball in dev-mode. Systemd scripts are provided in the `systemd/` directory, 
 for maintaining active Indy containers, with one service definition for each of the init scripts above.
 
@@ -27,20 +27,18 @@ to turn it into a really functional script:
     yum -y install docker tree lsof python-lxml python-httplib2
     systemctl enable docker
     systemctl start docker
-    curl http://repo.maven.apache.org/maven2/org/commonjava/indy/docker/indy-docker-utils/0.19.1/indy-docker-utils-0.19.1.tar.gz | tar -zxv
-    cd indy-docker-utils
     
-    # ./init-indy-volumes -h
-    ./init-indy-volumes
+    # ./scripts/init-indy-volumes -h
+    ./scripts/init-indy-volumes
     
-    # ./init-indy-server -h
-    ./init-indy-server -p 80 -q
+    # ./scripts/init-indy-server -h
+    ./scripts/init-indy-server -p 80 -q
     
     #Or, if you want, you can leave off the '-q' option and watch the server come up
     #...then use CTL-C to exit the tty (the container will keep running)
     
-    cp systemd/indy-volumes.service systemd/indy-server.service /etc/systemd/system
-    systemctl enable indy-volumes indy-server
+    cp systemd/indy-volumes.service systemd/indy.service /etc/systemd/system
+    systemctl enable indy-volumes indy
     
     docker stop indy indy-volumes
     systemctl start indy-volumes

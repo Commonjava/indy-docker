@@ -17,11 +17,11 @@ The following volumes can be mounted from outside (like from the indy-volumes im
 
 This Indy Docker image can be customized from the command line using the following environment variables:
 
-- `APROX_BINARY_URL`
+- `INDY_BINARY_URL`
 
   In case you want to deploy a different version of Indy, or a different deployment flavor, you can specify the full URL of the deployable binary (tar.gz) via this envar. If this envar is unspecified, the latest release of the Savant deployment flavor will be used.
 
-- `APROX_ETC_URL`
+- `INDY_ETC_URL`
 
   In case you want to store the path / feature configuration options for your deployment in a Git repository, the startup script will use git to clone the repository at the URL provided in this envar (if it's specified) into `/etc/indy` before starting the server. If unspecified, the default `etc/indy` configuration from the deployment binary will be used.
 

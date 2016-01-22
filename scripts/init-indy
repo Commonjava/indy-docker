@@ -1,0 +1,70 @@
+#!/bin/bash
+#
+# Copyright (C) 2015 John Casey (jdcasey@commonjava.org)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+set -x
+
+DIR=$(dirname $(dirname $(realpath $0)))
+source $DIR/ENV
+
+GOT_VERSION=0
+GOT_URL=0
+for arg in $@; do
+	if [[ $arg == "-V" ]] || [[ $arg == --version* ]]; then
+		GOT_VERSION=1
+
+  elif [[ $arg == --url* ]]; then
+    GOT_URL=1
+  fi
+done
+
+VERSION_PARAM=""
+if [ "$GOT_URL" == "0" ] && [ "$GOT_VERSION" == "0" ] && [ -f $VERSION_FILE ]; then
+       V=$(cat $VERSION_FILE)
+       echo "Using last autodeploy version: $V"
+	VERSION_PARAM="--version=$V"
+fi
+
+ETC_PARAM=""
+if [ "x$ETC_URL" != "x" ]; then
+    ETC_PARAM="-E ${ETC_URL}"
+fi
+
+TO_DEPLOY=''
+if [ -d $DEV_TO_DEPLOY_DIR ]; then
+    TO_DEPLOY=$(ls -1 $DEV_TO_DEPLOY_DIR/indy-launcher-*-launcher.tar.gz | tail -1)
+fi
+
+DEV=''
+if [ "x${TO_DEPLOY}" != "x" ] && [ -d $DEV_DEPLOY_DIR ]; then
+  rm -rf $DEV_DEPLOY_DIR/*
+  cp $TO_DEPLOY $DEV_DEPLOY_DIR
+  chcon -Rt svirt_sandbox_file_t $DEV_DEPLOY_DIR
+  DEV="--devdir=${DEV_DEPLOY_DIR}"
+fi
+
+$BASE/scripts/init-indy-server-no-vols.py  --port=$PORT \
+                                           --sshdir=$SSH \
+                                           --name=$CONTAINER_NAME \
+                                           --image=$IMAGE_NAME \
+                                           --logs=$BASE/logs \
+                                           --data=$BASE/data \
+                                           --config=$BASE/etc \
+                                           --storage=$BASE/storage \
+                                           $DEV \
+                                           $ETC_PARAM \
+                                           $VERSION_PARAM \
+                                           $EXTRA_PARAMS $@
