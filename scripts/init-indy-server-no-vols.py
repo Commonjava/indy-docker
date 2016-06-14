@@ -30,7 +30,7 @@ def run(cmd, fail=True):
     sys.exit(ret)
 
 def chcon(dir):
-  run("chcon -Rt svirt_sandbox_file_t %s" % dir)
+  run("chcon -Rt svirt_sandbox_file_t %s" % dir, fail=False)
 
 def parse():
   usage = """%prog [options]
